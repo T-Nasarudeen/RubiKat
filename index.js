@@ -14,7 +14,7 @@ const app = express()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    secret: process.env.SECRET_KEY,
+    secret: "session secret key",
     resave: false,
     saveUninitialized: true,
     cookie:{
