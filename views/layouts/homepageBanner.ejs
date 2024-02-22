@@ -1,0 +1,40 @@
+<%if(bannerData.length>0){%>
+    <div id="carouselExampleControls" class="carousel slide" data-ride="carousel" >
+        <div class="carousel-inner">
+            <%let i=1%>
+            <%bannerData.forEach(banner=>{%>
+                <div class="carousel-item <%= i === 1 ? 'active' : '' %>" style="height: 30vh;">
+                    <img class="d-block w-100" src="<%=banner.image%>" alt="Slide <%=i%>">
+                    <div class="carousel-caption d-block">
+                        <h1 id="title<%=i%>" style="font-weight: bolder;"><%=banner.title%></h1>
+                    </div>
+                </div>
+                <script>
+                    var title=document.getElementById('title<%=i%>')
+                    title.style.color="<%=banner.titleColor%>"
+                </script>
+                <%i++%>                
+            <%})%>
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+    </div>    
+<%}else{%>
+    <div class="hero" style="background-image: url(/image/banner.png);background-size: cover">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-lg-5">
+                    <div class="intro-excerpt">
+                        <h1 style='color:bisque'>The Ultimate Reading Destination</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<%}%>

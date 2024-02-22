@@ -1,0 +1,184 @@
+
+<%- include('../layouts/homepageHeader.ejs')-%>
+<div class="untree_co-section before-footer-section">
+    <div class="container">
+      <div class="row mb-5">
+        <form class="col-md-12">
+          <div class="site-blocks-table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="product-thumbnail">Image</th>
+                  <th class="product-name">Product</th>
+                  <th class="product-price">Price</th>
+                  <th class="product-quantity">Quantity</th>
+                  <th class="product-total">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="product-thumbnail">
+                    <img style="height: 100px;" src="<%=productData.image%>" alt="Image" class="img-fluid">
+                  </td>
+                  <td class="product-name">
+                    <h2 class="h5 text-black"><%=productData.name%></h2>
+                  </td>
+                  <td>Rs.<span id="productPrice"><%=productData.price%></span></td>
+                  <td>
+                    <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;margin: 0 auto;">
+                      <div class="input-group-prepend">
+                        <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+                      </div>
+                      <input type="text" class="form-control text-center quantity-amount" value="2" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-black increase" type="button">&plus;</button>
+                      </div>
+                    </div>
+                  </td>
+                  <td >Rs.<span id="totalPrice"><%=productData.price*2%></span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row mb-5">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <button class="btn btn-black btn-sm btn-block">Update Cart</button>
+            </div>
+            <div class="col-md-6">
+              <a href="/" class="btn btn-black btn-sm btn-block">Continue Shopping</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 pl-5">
+          <div class="row justify-content-end">
+            <div class="col-md-7">
+              <div class="row">
+                <div class="col-md-12 text-right border-bottom mb-5">
+                  <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <span class="text-black">Subtotal</span>
+                </div>
+                <div class="col-md-6 text-right">
+                  <strong class="text-black" id="subTotal"></strong>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <span class="text-black" >Discount</span>
+                </div>
+                <div class="col-md-6 text-right">
+                  <strong class="text-black" id="discount">Rs.0</strong>
+                </div>
+              </div>
+              <div class="row mb-5">
+                <div class="col-md-6">
+                  <span class="text-black">Delivery charge</span>
+                </div>
+                <div class="col-md-6 text-right">
+                  <strong id="delivery"></strong>
+                </div>
+              </div>
+              <div class="row mb-5">
+                <div class="col-md-6">
+                  <span class="text-black">Total</span>
+                </div>
+                <div class="col-md-6 text-right">
+                  <strong class="text-black" id="cartTotal" ></strong>
+                </div>
+              </div>
+
+              <div class="row">
+                <form action="/buyNow/<%=productData._id%>" method="post">
+                  <input type="numer" name="orderQuantity" id="orderQuantity" style="display: none;">
+                  <input type="number" name="orderAmount" id="orderAmout" style="display: none;">
+                  <div class="col-md-12">
+                    <button type="submit" class="btn btn-black btn-lg py-3 btn-block">Proceed To Checkout</button>
+                  </div>
+                </form>                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+        const decreaseBtn = document.querySelector('.decrease');
+        const increaseBtn = document.querySelector('.increase');
+        const quantityInput = document.querySelector('.quantity-amount');
+        const productPrice = document.getElementById('productPrice');
+        const totalPrice = document.getElementById('totalPrice');
+        const subTotal = document.getElementById('subTotal');
+        const delivery = document.getElementById('delivery');
+        const cartTotal = document.getElementById('cartTotal');
+        const orderQuantity = document.getElementById('orderQuantity');
+        const orderAmout = document.getElementById('orderAmout');          
+        const price = parseFloat(productPrice.textContent);
+
+
+        decreaseBtn.addEventListener('click', function() {
+            let quantity = parseInt(quantityInput.value)-1;
+            if (quantity < 2) {
+                decreaseBtn.disabled = true;               
+            }
+            increaseBtn.disabled = false;
+            const total = quantity*price;
+            totalPrice.textContent =total
+
+            updateSubTotal(quantity);
+        });
+
+        increaseBtn.addEventListener('click', function() {
+            let quantity = parseInt(quantityInput.value)+1;
+            if (quantity  > 3) {
+                increaseBtn.disabled = true;
+            }
+            decreaseBtn.disabled = false;
+            const total = quantity * price;
+            totalPrice.textContent =total
+            updateSubTotal(quantity);
+        });
+
+        function updateSubTotal(quantity) {
+            const subTotalValue = quantity * price;
+            subTotal.textContent ='Rs.'+subTotalValue
+            deliveryFee(subTotalValue)
+            Total(subTotalValue,quantity)
+        }
+
+        function deliveryFee(subTotalValue ){
+          if(subTotalValue<300){
+          delivery.textContent ='Rs.'+40;
+          delivery.style.color ='black';
+          }else{
+            delivery.textContent ='Free delivery';
+            delivery.style.color ='green';
+          }
+        }
+
+        function Total(subTotalValue,quantity){
+          orderQuantity.value=quantity
+          if(subTotalValue<300){
+            cartTotal.textContent='Rs'+(subTotalValue+40)
+            orderAmout.value=subTotalValue+40
+          }else{
+            cartTotal.textContent='Rs'+subTotalValue
+            orderAmout.value=subTotalValue
+          }
+
+        }
+
+        updateSubTotal(2);
+</script>
+
+<%- include('../layouts/homepageFooter.ejs')-%>        
+
+
+		

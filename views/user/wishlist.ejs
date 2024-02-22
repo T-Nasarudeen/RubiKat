@@ -1,0 +1,61 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+
+    <div style="background-color: rgb(237, 235, 233)" class="untree_co-section product-section before-footer-section">
+        <div class="container">
+            <%if(userData.wishlist.length>0){%>
+                <div class="row">
+                    <% userData.wishlist.forEach(product=>{%> <%if(product.status==0){%>
+                            <div class="col-12 col-md-6 col-lg-3 mb-5">
+                                <a class="product-item" href="/productDetails/<%=product._id%>">
+                                    <div class="product-container">
+                                        <div style=" background-image: url('<%=product.image%>');background-size: contain; background-position: center; width: 100%; height: 300px; background-repeat: no-repeat" class="mb-2"></div>
+                                        <div class="heart-icon-container"
+                                            onclick="toggleWishlist(event,this,'<%=product._id%>','remove')">
+                                            <img src="/image/filled-like.png" class="heart-icon" />
+                                        </div>
+                                    </div>
+                                    <h3 class="product-title">
+                                        <%=product.name%>
+                                    </h3>
+                                    <h6 class="product-title">A book of <%=product.author%>
+                                    </h6>
+                                    <strong class="product-price">&#8377;<%=product.price%></strong>
+                                </a>
+                            </div>
+                            <%}%>
+                                <%})%>
+                </div>
+                <%}else{%>
+                    <div class="row">
+                        <div class="col-md-12 text-center pt-5">
+                            <img src="/image/empty-wishlist.png" alt="login form" style="width: 10%" />
+                            <h2 class="text-black my-3">
+                                <strong>YOUR WISHLIST IS EMPTY!</strong>
+                            </h2>
+                            <p class="lead mb-1">
+                                Add items that you like to your wishlist. Review <br />them anytime
+                                and easily move them to the bag..
+                            </p>
+                            <p>
+                                <a href="/" class="btn btn-sm btn-outline-black">Continue shoping</a>
+                            </p>
+                        </div>
+                    </div>
+                    <%}%>
+        </div>
+    </div>
+    <script>
+        async function toggleWishlist(event, wishlist, productId, status) {
+            event.preventDefault();
+            const response = await fetch(
+                `/wishlist?productId=${productId}&status=${status}`
+            );
+            if (response.ok) {
+                const result = await response.json();
+                if (result.message == "removed") {
+                    window.location.href = "/userWishlist";
+                }
+            }
+        }
+    </script>
+    <%- include('../layouts/homepageFooter.ejs')-%>

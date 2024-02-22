@@ -1,0 +1,96 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+<%- include('../layouts/homepageBanner.ejs')-%>
+<!-- Start Product Section -->
+<div class="product-section">
+	<div class="container">
+		<div class="row">
+
+			<!-- Start Column 1 -->
+			<div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
+				<h2 class="mb-4 section-title">Crafted with Literary Excellence.</h2>
+				<p class="mb-4">Immerse yourself in a world of literary wonders with books crafted for unparalleled excellence in storytelling and knowledge. </p>
+				<p><a href="/products" class="btn">Explore</a></p>
+			</div> 
+			<!-- End Column 1 -->
+
+			<!-- Start Column 2 -->
+			<%productData.forEach((product)=>{%>
+				<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+					<a class="product-item" href="/productDetails/<%=product._id%>">
+						<img src="<%=product.image%>" class="img-fluid product-thumbnail" style="height:300px;" >
+						<h3 class="product-title"><%=product.name%></h3>
+					</a>
+				</div> 
+			<%})%>			
+			<!-- End Column 2 -->
+		</div>
+	</div>
+</div>
+<!-- End Product Section -->
+
+<!-- Start Why Choose Us Section -->
+<div class="why-choose-section">
+	<div class="container">
+		<div class="row justify-content-between">
+			<div class="col-lg-6">
+				<h2 class="section-title">Why Choose Us</h2>
+				<p>Enjoy fast and reliable shipping services tailored to meet the excitement of diving into a new book adventure.</p>
+
+				<div class="row my-5">
+					<div class="col-6 col-md-6">
+						<div class="feature">
+							<div class="icon">
+								<img src="/image/truck.svg" alt="Image" class="imf-fluid">
+							</div>
+							<h3>Fast Shipping</h3>
+							<p>Experience prompt shipping to get your favorite books in your hands quickly.</p>
+						</div>
+					</div>
+
+					<div class="col-6 col-md-6">
+						<div class="feature">
+							<div class="icon">
+								<img src="/image/bag.svg" alt="Image" class="imf-fluid">
+							</div>
+							<h3>Easy to Shop</h3>
+							<p>Navigate through our website effortlessly with an intuitive and easy-to-use interface.</p>
+						</div>
+					</div>
+
+					<div class="col-6 col-md-6">
+						<div class="feature">
+							<div class="icon">
+								<img src="/image/support.svg" alt="Image" class="imf-fluid">
+							</div>
+							<h3>24/7 Support</h3>
+							<p>Reach out to our knowledgeable support team anytime, day or night, for prompt and reliable assistance.</p>
+						</div>
+					</div>
+
+					<div class="col-6 col-md-6">
+						<div class="feature">
+							<div class="icon">
+								<img src="/image/return.svg" alt="Image" class="imf-fluid">
+							</div>
+							<h3>Hassle Free Returns</h3>
+							<p>Our return process is straightforward, ensuring a stress-free experience if you need to make a return.</p>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="col-lg-5">
+				<div class="img-wrap">
+					<img src="/image/homeImage.webp" alt="Image" class="img-fluid">
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!-- End Why Choose Us Section -->
+<%- include('../layouts/homepageFooter.ejs')-%>        
+
+
+		

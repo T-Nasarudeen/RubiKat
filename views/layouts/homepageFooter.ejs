@@ -1,0 +1,87 @@
+<!-- Start Footer Section -->
+<footer class="footer-section">
+    <div class="container relative">
+        <div class="row g-5 mb-5">
+            <div class="col-lg-4">
+                <div class="mb-4 footer-logo-wrap"><a href="#" class="footer-logo">RubiKat<span>.</span></a></div>
+                <p class="mb-4">Discover literary wonders at RubiKat. Your go-to destination for captivating stories across genres. Explore our curated collection and immerse yourself in the joy of reading. Welcome to a world of books with RubiKat</p>
+                <ul class="list-unstyled custom-social">
+                    <li><a href="https://t.me/tnasarudeen" target="_blank"><span class="fa fa-brands fa-telegram" ></span></a></li>
+                    <li><a href="https://instagram.com/nasru_t?igshid=OGQ5ZDc2ODk2ZA==" target="_blank"><span class="fa fa-brands fa-instagram" ></span></a></li>
+                    <li><a href="https://www.linkedin.com/in/tnasarudeen"  target="_blank"><span class="fa fa-brands fa-linkedin"></span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-top copyright">
+            <div class="row pt-4">
+                <div class="col-lg-6">
+                    <p class="mb-2 text-center text-lg-start">Copyright &copy;<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash; RubiKat
+                    </p>
+                </div>
+                <div class="col-lg-6 text-center text-lg-end">
+                    <ul class="list-unstyled d-inline-flex ms-auto">
+                        <li class="me-4"><a href="#">Terms &amp; Conditions</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- End Footer Section -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.dropdown-toggle').dropdown();
+    });
+    var path = window.location.pathname;
+    var navLinks = document.querySelectorAll('.custom-navbar-nav a.nav-link');
+    for (var i = 0; i < navLinks.length; i++) {
+        var linkPath = navLinks[i].getAttribute('href');
+        if (path === linkPath) {
+            navLinks[i].parentNode.classList.add('active');
+        }
+    }
+    const searchInput=document.getElementById('searchInput')
+    const suggestionContainer=document.getElementById('suggestionContainer')
+    searchInput.addEventListener('input',async function(){
+        const query = searchInput.value;
+        if(query.length>2){
+            const response= await fetch(`/searchSuggestions/?query=${searchInput.value}`)
+            if(response.ok){
+                const result= await response.json()
+                suggestionContainer.innerHTML=''
+                if(result.searchresult.length>0){
+                    result.searchresult.forEach(data=>{
+                        const link = document.createElement('a');
+                        link.href = `/products?search=${encodeURIComponent(data.name)}`;
+                        link.textContent = data.name;
+                        link.classList.add("d-block")
+                        link.style.textDecoration = 'none';
+                        suggestionContainer.appendChild(link);
+                    })
+                    suggestionContainer.style.display='block' 
+                }
+            }            
+        }else{
+            suggestionContainer.style.display='none'
+        } 
+    })
+    function serachValidation(){
+        let validation =false
+        if(searchInput.value!=""){
+            validation=true
+        }
+        return validation
+    }
+    if ("<%=searchInput%>") {
+        searchInput.value = "<%=searchInput%>";
+    }
+</script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/tiny-slider.js"></script>
+<script src="/js/custom.js"></script>
+</body>
+</html>

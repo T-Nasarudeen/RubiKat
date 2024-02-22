@@ -1,0 +1,253 @@
+<%- include('../layouts/adminHeader.ejs')-%> 
+<section>
+  <div class="container">
+    <div class="d-flex justify-content-between">
+      <div>
+        <h4 style="color: #0e382e;"><b>Product Details</b></h4>
+      </div>
+      <div id="searchContainer">
+        <form class="form-inline" action="/admin/search/product" method="GET" onsubmit="return serachValidation()">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="query" id="searchInput">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fas fa-search"></i></button>
+        </form>
+        <div id="suggestionContainer" class="text-center text-black" style="display: none;"></div>
+      </div>
+      <div>
+        <button data-toggle="modal" data-target="#newProduct" type="button" class="btn add-new" style="background-color: #0e382e;color: white;border-radius: 6px;"><i class="fa fa-plus"></i> Add New Product</button>
+      </div>      
+    </div>    
+    <table class="table mt-2">
+      <thead style="border-bottom: solid #0e382e;border-top: solid #0e382e ">
+        <tr style="color: #0e382e;font-weight: bolder;">
+          <th scope="col">No</th>
+          <th scope="col">Name</th>
+          <th scope="col">Category</th>
+          <th scope="col">Author</th>
+          <th scope="col">Price</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Delivery Time</th>
+          <th scope="col">Description</th>
+          <th scope="col">Image</th>
+          <th scope="col">Status</th>          
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% let i=1%>
+      <% productData.forEach(product=>{%>
+        <tr >
+          <td style="color: #0e382e"><%= i++ %></td>
+          <td style="color: #0e382e"><%= product.name %></td>
+          <td style="color: #0e382e"><%= product.category %></td>
+          <td style="color: #0e382e"><%= product.author %></td>
+          <td style="color: #0e382e">&#8377; <%= product.price %></td>
+          <td style="color: #0e382e"><%= product.quantity %></td>
+          <td style="color: #0e382e"><%= product.deliveryTime %><span> Days</span></td>
+          <td style="color: #0e382e"><%= product.description%></td>
+          <td style="color: #0e382e"><img style="height: 50px;" src="<%= product.image %>" alt=""></td>
+          <%if(product.status===0){%>
+          <td class="text-success">Listed</td>
+          <%}else{%>
+          <td class="text-danger">Unlisted</td>
+          <%}%>                            
+          <td style="color: #0e382e">
+            <button data-toggle="modal" data-target="#edit<%=product._id%>"><i class="fa-solid fa-pen" style="color: #0e382e;"></i></button>
+            <%if(product.status===0){%>
+            <button data-toggle="modal" data-target="#delete<%= product._id %>"><i class="fa-solid fa-ban" style="color: hsl(0, 75%, 46%);"></i></button>
+            <%}else{%>
+            <button data-toggle="modal" data-target="#delete<%= product._id %>"><i class="fa-solid fa-ban" style="color: hsl(129, 75%, 46%);"></i></button>
+            <%}%>
+          </td>
+          <div class="modal" id="delete<%= product._id %>" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <%if(product.status===0){%>
+                    <p class="text-danger text-center">Are sure to unlist the product?.</p>
+                  <%}else{%>
+                    <p class="text-danger text-center">Are sure to list the product?.</p>
+                  <%}%>                                    
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <%if(product.status===0){%>
+                    <a href="/admin/listProduct?productId=<%=product._id%>&page=<%=pageNumber%>&query=<%=searchInput%>"><button type="button" class="btn btn-danger">Unlist product</button></a>
+                  <%}else{%>
+                    <a href="/admin/listProduct?productId=<%=product._id%>&page=<%=pageNumber%>&query=<%=searchInput%>"><button type="button" class="btn btn-success">List product</button></a>
+                  <%}%>                                                      
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </tr>
+        <div class="modal" id="edit<%= product._id %>" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content"  style="width: 100%px;">
+              <div class="modal-body" >
+                <div class="container mt-1" >
+                  <div class="container mt-4">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <h2 class="text-center">Add new product</h2>
+                        <form action="/admin/editProduct?productId=<%=product._id%>&page=<%=pageNumber%>&query=<%=searchInput%>" method="post" enctype="multipart/form-data">
+                          <label for="">Name</label>
+                          <input type="text" name="name" class="form-control" value="<%=product.name%>">
+                          <label for="options">Select an Category:</label>
+                          <select id="options" class="form-control" name="category" value="<%=product.category%>">
+                            <% categories.forEach(category=>{%>  
+                            <option ><%=category.name%> </option>
+                            <%})%>
+                          </select>
+                          <label for="">Author</label>
+                          <input type="text" name="author" class="form-control" value="<%=product.author%>">
+                          <label for="">Price</label>
+                          <input type="number" name="price" class="form-control" value="<%=product.price%>">
+                          <label for="">Quantity</label>
+                          <input type="number" name="quantity" class="form-control" value="<%=product.quantity%>">
+                          <label for="">Delivery Time</label>
+                          <input type="number" name="deliveryTime" class="form-control" value="<%=product.deliveryTime%>">
+                          <label for="">Description</label>
+                          <textarea name="description" id="" class="d-block" cols="mr-auto" rows="3" style="display: block;width:100%"><%= product.description %></textarea>
+                          <label for="">Image</label>
+                          <img src="<%= product.image %>" alt="" style="height: 50px;" class="d-block">
+                          <input type="file" multiple name="image" class="form-control">
+                          <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
+                            <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <%})%>                      
+      </tbody>
+    </table>    
+    <hr>
+    <%if(totalPage>0){%>
+      <div class="d-flex justify-content-between">
+        <div>
+          <p>Page <%=pageNumber%> of <%=totalPage%></p>
+        </div>
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+              <li class="page-item">
+                <%if(pageNumber>1){%>
+                  <a class="page-link" href="/admin/viewProducts?page=<%=pageNumber-1%>&query=<%=searchInput%>"style="color: #0e382e;"  >Previous</a>
+                <%}%>
+              </li>
+              <%if(pageNumber<5){%>
+                <% i=1%>
+              <%}else if(pageNumber>5&&(pageNumber+4)>=totalPage){%>
+                <%i=totalPage-9%>
+              <%}else{%>
+                <%i=pageNumber-4%>
+              <%}%>
+              <%for(i,j=1;i<=totalPage&&j<=10;i++,j++){%>
+                <%if(i==pageNumber){%>
+                  <li class="page-item"><a class="page-link" href="/admin/viewProducts?page=<%=i%>&query=<%=searchInput%>" style="color: white;background-color: #0e382e;"><strong><%=i%></strong></a></li>
+                <%}else{%>
+                  <li class="page-item"><a class="page-link" href="/admin/viewProducts?page=<%=i%>&query=<%=searchInput%>" style="color: #0e382e;" ><%=i%></a></li>
+                <%}%>                        
+              <%}%>
+              <li class="page-item">
+                <%if(pageNumber<totalPage){%>
+                  <a class="page-link" href="/admin/viewProducts?page=<%=pageNumber-1%>&query=<%=searchInput%>" style="color: #0e382e;" >Next</a>
+                <%}%>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    <%}%>
+    <!--------------new product adding------------->
+    <div class="modal" id="newProduct" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content"  style="width: 100%px;">
+          <div class="modal-body" >
+            <div class="container mt-1" >
+              <div class="container mt-4">
+                <div class="row">
+                  <div class="col-md-12">
+                    <h2 class="text-center">Add new product</h2>
+                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                      <label for="">Name</label>
+                      <input type="text" name="name" class="form-control">
+                      <label for="options">Select an Category:</label>
+                      <select id="options" class="form-control" name="category">
+                        <% categories.forEach(category=>{%>  
+                        <option ><%=category.name%> </option>
+                        <%})%>
+                      </select>
+                      <label for="">Author</label>
+                      <input type="text" name="author" class="form-control">
+                      <label for="">Price</label>
+                      <input type="number" name="price" class="form-control">
+                      <label for="">Quantity</label>
+                      <input type="number" name="quantity" class="form-control">
+                      <label for="">Delivery Time</label>
+                      <input type="number" name="deliveryTime" class="form-control" placeholder="No of days">
+                      <label for="">Description</label>
+                      <textarea name="description" cols="mr-auto"style="display: block;width:100%"></textarea>
+                      <label for="">Image</label>
+                      <input type="file" multiple name="image" class="form-control">
+                      <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
+                        <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
+  </div>
+</section>
+<script>
+  const searchInput=document.getElementById('searchInput')
+  const suggestionContainer=document.getElementById('suggestionContainer')
+  searchInput.addEventListener('input',async function(){
+      const query = searchInput.value;
+      if(query.length>2){
+          const response= await fetch(`/admin/searchSuggestions/product?query=${searchInput.value}`)
+          if(response.ok){
+              const result= await response.json()
+              suggestionContainer.innerHTML=''
+              if(result.searchresult.length>0){
+                  result.searchresult.forEach(data=>{
+                      const link = document.createElement('a');
+                      link.href = `/admin/search/product?query=${encodeURIComponent(data.name)}`;
+                      link.textContent = data.name;
+                      link.classList.add("d-block")
+                      link.style.color = 'black';
+                      link.style.textDecoration = 'none';
+                      suggestionContainer.appendChild(link);
+                  })
+                  suggestionContainer.style.display='block' 
+              }
+          }            
+      }else{
+          suggestionContainer.style.display='none'
+      } 
+  })
+  function serachValidation(){
+  let validation =false
+  if(searchInput.value!=""){
+      validation=true
+  }
+  return validation
+}
+  if ("<%=searchInput%>") {
+    searchInput.value = "<%=searchInput%>";
+  }
+</script>
+<%- include('../layouts/actionResponse')-%>
+<%- include('../layouts/adminFooter.ejs')-%> 

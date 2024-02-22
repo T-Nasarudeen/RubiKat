@@ -1,0 +1,434 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+<section style="background-color: #eee;">
+  <div class="container py-2">
+    <div class="row">
+      <div class="col">
+        <nav aria-label="breadcrumb" class="bg-light rounded-3 p-1 mb-2">
+          <h2 class="text-center" style="color: #0e382c;font-weight:600 ">My addresses</h2>
+        </nav>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card mb-2">
+          <div class="card-body text-center">
+            <img src="/image/userProfilePic.png" alt="avatar"
+              class="rounded-circle img-fluid" style="width: 100px;">
+            <h5 class="my-3" id="profileName"><%=userData.name%></h5>
+            <p class="text-muted mb-1"><i class="fa-solid fa-envelope" style="color: #0e382c;"></i><%=userData.email%></p>
+          </div>
+        </div>
+        <div class="card mb-4 mb-lg-0">
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush rounded-3">
+              <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                <a href="/profile" style="text-decoration: none;"><p class="mb-0" id="personalDetails">Personal Details</p></a>
+              </li>
+              <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/address" style="text-decoration: none;"><p class="mb-0"id="addressDetails">Manage Addressess</p></a>
+              </li>
+              <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                <a href="/orders" style="text-decoration: none;"><p class="mb-0" id="orderDetails">My Orders</p></a>
+              </li>
+              <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                <a href="/wallet" style="text-decoration: none;"><p class="mb-0" id="orderDetails">My Wallet</p></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card mb-4">          
+          <div class="card-body" id="addressDetailsBody">
+              <div class="row text-center" style="color: #0e382c;font-weight: 900;" id="noAddress">
+                <h6>No Addresses found in your account!</h6>
+                <p>Add a delivery address.</p>
+                <hr>
+              </div>
+            <div class="row" id="addressContainer">
+              <%userData.address.forEach((address,index)=>{%>
+              <div class="row" id="editingAddress<%=index%>">
+                <div class="col-md-6">
+                  <address class="text-black border">
+                    <pre class="m-0 p-1 h6 font-weight-bold" ><strong><%=address.name%>  <%=address.mobile%></strong></pre>
+                    <p class="p-1 m-0">
+                    <%=address.house%>,<%=address.locality%>,
+                    <%=address.city%>,<%=address.state%>,
+                    <%=address.landmark%>,<%=address.pin%>
+                    </p>                  
+                  </address>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end align-items-start">
+                  <div>
+                      <button type="button" class="btn btn-primary btn-sm" style="padding: 5px 10px;border-radius: 2px;margin: 0 5px 5px 0" onclick="showEditform(`<%= index %>`)" >Edit</button>                 
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#delete<%=index%>" style="padding: 5px 10px;border-radius: 2px;margin: 0 5px 5px 0">Delete</button>
+                    <div class="modal" id="delete<%=index%>" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-body">
+                            <p class="text-danger text-center">Are you sure you want to delete this address?</p>                                   
+                          </div>
+                          <div class="modal-footer justify-content-center">                            
+                            <form onsubmit="submitDelete(this)">
+                              <input type="hidden" value="<%=index%>" name="delete">
+                              <button type="submit" class="btn-danger" style="color: white;text-decoration: none;">Delete</button>
+                              <button type="button" class="btn-primary" data-dismiss="modal" >Cancel</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>                  
+                  </div>
+                </div>
+                <hr>
+              </div>
+              <div class="row">
+                <form  id="editAddressForm<%=index%>" class="d-none" onsubmit="submitEdit(this)">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">Full name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="name" value="<%=address.name%>">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">Locality<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="locality" min="4" max="15" required value="<%=address.locality%>">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">City<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="city" required value="<%=address.city%>">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">House No/Name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="house" placeholder="Apartment, suite, unit etc." required value="<%=address.house%>">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">Land mark<span class="text-danger">*</span></label>
+                      <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Railway station, Petrol pump, etc." name="landmark" value="<%=address.landmark%>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_state_country" class="text-black">State<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_state_country" name="state" required value="<%=address.state%>">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_postal_zip" class="text-black">Posta / Zip <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_postal_zip" name="pin" required value="<%=address.pin%>">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_phone" class="text-black">Phone <span class="text-danger">*</span></label>
+                      <input type="tel" pattern="[0-9]+" class="form-control" id="c_diff_phone" name="mobile" minlength="10" maxlength="10" required value="<%=address.mobile%>">
+                    </div>
+                  </div>
+                  <input type="hidden" name="edit" value="<%=index%>">
+                  <div class="row">
+                    <div class="col-md-6 d-flex justify-content-between">
+                      <button type="submit" class="btn add-new mt-2" style="background-color: #0e382e;color: white;border-radius: 6px;">Save changes</button>
+                      <button type="button" class="btn add-new mt-2" style="background-color: #0e382e;color: white;border-radius: 6px;" onclick="closeEditform(`<%= index %>`)">Cancel</button>
+                    </div>
+                  </div>
+                  <hr>
+                </form>                                
+              </div>
+            <%})%>                                               
+            </div>              
+            <div class="row">
+              <form class="d-none" id="newAddressForm">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="c_diff_fname" class="text-black">Full name<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="c_diff_fname" name="name" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="c_diff_fname" class="text-black">Locality<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="c_diff_fname" name="locality" min="4" max="15" required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="c_diff_fname" class="text-black">City<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="c_diff_fname" name="city" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="c_diff_fname" class="text-black">House No/Name<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="c_diff_fname" name="house" placeholder="Apartment, suite, unit etc." required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="c_diff_fname" class="text-black">Land mark<span class="text-danger">*</span></label>
+                    <div class="form-group">
+                      <input type="text" class="form-control" placeholder="Railway station, Petrol pump, etc." name="landmark" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="c_diff_state_country" class="text-black">State<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="c_diff_state_country" name="state" required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="c_diff_postal_zip" class="text-black">Posta / Zip <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="c_diff_postal_zip" name="pin" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="c_diff_phone" class="text-black">Phone <span class="text-danger">*</span></label>
+                    <input type="tel" pattern="[0-9]+" class="form-control" id="c_diff_phone" name="mobile" minlength="10" maxlength="10" required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 d-flex justify-content-between">
+                    <button type="submit" class="btn add-new mt-2" style="background-color: #0e382e;color: white;border-radius: 6px;">Save New Adress</button>
+                    <button type="button" class="btn add-new mt-2" style="background-color: #0e382e;color: white;border-radius: 6px;" >Cancel</button>
+                  </div>
+                </div>
+              </form>                
+            </div>
+            <div class="row" >
+              <div class="col-md-12">
+                <button type="button" class="btn add-new mt-2" style="background-color: #0e382e;color: white;border-radius: 6px;" id="addAddressButton"><i class="fa fa-plus"></i> Add New Address</button>
+              </div>                
+            </div>              
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>    
+</section>
+  <script>
+    ////////profile-address-edit------/////////////////////////////
+    const newAddressForm=document.getElementById('newAddressForm')
+    const addAddressButton=document.getElementById('addAddressButton')    
+    addAddressButton.addEventListener('click',addNewAddress)
+    function addNewAddress(){
+      newAddressForm.classList.remove("d-none");
+      addAddressButton.classList.add("d-none");
+    }
+    const newAdCancelButton=newAddressForm.querySelector('button[type="button"]')
+    newAdCancelButton.addEventListener('click',cancelAddNewAd)
+    function cancelAddNewAd(){
+      newAddressForm.classList.add("d-none");
+      addAddressButton.classList.remove("d-none");
+    }
+    const newAdSaveButton=newAddressForm.querySelector('button[type="submit"]')
+    newAddressForm.addEventListener('submit',submitNewAddress)
+    async function submitNewAddress(event){
+      event.preventDefault()
+      let formdata= new FormData(newAddressForm)
+      try{
+        const response= await fetch('/saveAddress',{
+        method:"POST",
+        body:formdata
+      })
+          if(response.ok){
+            const result=await response.json()
+            newAdSaveButton.innerText = 'Address Saved'
+            newAdSaveButton.disabled=true                       
+            setTimeout(()=>{
+              newAdSaveButton.innerText = 'Save New Adress'
+              newAdSaveButton.disabled=false
+              newAddressForm.classList.add("d-none");
+              addAddressButton.classList.remove("d-none");
+              clearFormFields(newAddressForm) 
+              renderAddresses(result.addresses)
+            },500)
+          }
+        
+      }catch(err){
+        console.log(err.message)
+      }
+
+    }
+
+    function checkAddress(length){
+      const noAddress = document.getElementById('noAddress');
+      if(length<1){
+        console.log(length)
+        noAddress.classList.remove("d-none")
+      }else{
+        noAddress.classList.add("d-none")
+      }      
+    }
+    checkAddress("<%=userData.address.length%>")
+
+    function clearFormFields(form) {
+      const elements = Array.from(form.elements);
+      elements.forEach((element)=>{
+        if (element.tagName === 'INPUT') {
+          element.value = '';
+        }
+      })
+    }
+    
+    function renderAddresses(addresses){
+      checkAddress(addresses.length)
+      const addressContainer = document.getElementById('addressContainer');
+      addressContainer.innerHTML = '';
+      addresses.forEach((address, index) => {
+        const addressElement1 = document.createElement('div');
+        addressElement1.classList.add('row');
+        addressElement1.id = `editingAddress${index}`
+        addressElement1.innerHTML = 
+            ` <div class="col-md-6">
+                <address class="text-black border">
+                <pre class="m-0 p-1 h6 font-weight-bold"><strong>${address.name} ${address.mobile}</strong></pre>
+                <p class="p-1 m-0">
+                  ${address.house}, ${address.locality}, ${address.city}, ${address.state}, ${address.landmark}, ${address.pin}
+                </p>                   
+                </address>
+              </div>
+              <div class="col-md-6 d-flex justify-content-end align-items-start">
+                  <div>
+                      <button type="button" class="btn btn-primary btn-sm" style="padding: 5px 10px;border-radius: 2px;margin: 0 5px 5px 0" onclick="showEditform(${index})" >Edit</button>                 
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#delete${index}" style="padding: 5px 10px;border-radius: 2px;margin: 0 5px 5px 0">Delete</button>
+                    <div class="modal" id="delete${index}" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-body">
+                            <p class="text-danger text-center">Are you sure you want to delete this address?</p>                                   
+                          </div>
+                          <div class="modal-footer justify-content-center">                            
+                            <form onsubmit="submitDelete(this)">
+                              <input type="hidden" value="${index}" name="delete">
+                              <button type="submit" class="btn-danger" style="color: white;text-decoration: none;">Delete</button>
+                              <button type="button" class="btn-primary" data-dismiss="modal" >Cancel</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>                  
+                  </div>
+                </div>
+              <hr> `
+        addressContainer.appendChild(addressElement1);
+        const addressElement2 = document.createElement('div');
+        addressElement2.classList.add('row');
+        addressElement2.innerHTML = `<div class="row">
+                <form  id="editAddressForm${index}" class="d-none" onsubmit="submitEdit(this)">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">Full name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="name" value="${address.name}">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">Locality<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="locality" min="4" max="15" required value="${address.locality}">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">City<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="city" required value="${address.city}">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">House No/Name<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_fname" name="house" placeholder="Apartment, suite, unit etc." required value="${address.house}">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_fname" class="text-black">Land mark</label>
+                      <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Railway station, Petrol pump, etc. (optional)" name="landmark" value="${address.landmark}">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_state_country" class="text-black">State<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_state_country" name="state" required value="${address.state}">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="c_diff_postal_zip" class="text-black">Posta / Zip <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="c_diff_postal_zip" name="pin" required value="${address.pin}">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="c_diff_phone" class="text-black">Phone <span class="text-danger">*</span></label>
+                      <input type="tel" pattern="[0-9]+" class="form-control" id="c_diff_phone" name="mobile" minlength="10" maxlength="10" required value="${address.mobile}">
+                    </div>
+                  </div>
+                  <input type="hidden" name="edit" value="${index}">
+                  <div class="row">
+                    <div class="col-md-6 d-flex justify-content-between">
+                      <button type="submit" class="btn add-new mt-2" style="background-color: #0e382e;color: white;border-radius: 6px;">Save changes</button>
+                      <button type="button" class="btn add-new mt-2" style="background-color: #0e382e;color: white;border-radius: 6px;" onclick="closeEditform(${index})">Cancel</button>
+                    </div>
+                  </div>
+                  <hr>
+                </form>                                
+              </div>`
+              addressContainer.appendChild(addressElement2)
+      });
+    }
+    async function submitDelete(form){
+      event.preventDefault()
+      try{  
+            const button=form.querySelector('button')
+            const formData=new FormData(form)
+            const response=await fetch('/saveAddress',{
+                    method:"POST",
+                    body:formData
+                })
+            if(response.ok){
+              const result=await response.json()
+              renderAddresses(result.addresses)
+              const cancelButton = form.querySelector('button[data-dismiss="modal"]');
+              cancelButton.click();
+            }
+        }catch(err){
+            console.log(err.message)
+        }
+    }
+    
+    function showEditform(formNumber){
+      const selectedForm=document.getElementById("editAddressForm"+formNumber)
+      selectedForm.classList.remove("d-none")
+      const editingAddress=document.getElementById('editingAddress'+formNumber)
+      editingAddress.classList.add("d-none")
+    }
+
+    function closeEditform(formNumber){
+      const selectedForm=document.getElementById("editAddressForm"+formNumber)
+      selectedForm.classList.add("d-none")
+      const editingAddress=document.getElementById('editingAddress'+formNumber)
+      editingAddress.classList.remove("d-none")
+    }
+
+    async function submitEdit(form){
+      event.preventDefault()
+      let formdata= new FormData(form)
+      const saveButton=form.querySelector('button[type="submit"]')
+      try{
+        const response= await fetch('/saveAddress',{
+        method:"POST",
+        body:formdata
+      })
+          if(response.ok){
+            const result=await response.json()
+            saveButton.innerText = 'Address Saved'
+            saveButton.disabled=true                       
+            setTimeout(()=>{
+              saveButton.innerText = 'Save changes'
+              saveButton.disabled=false
+              renderAddresses(result.addresses)
+            },500)
+          }
+        
+      }catch(err){
+        console.log(err.message)
+      }
+
+    }
+  </script>
+<%- include('../layouts/homepageFooter.ejs')-%>

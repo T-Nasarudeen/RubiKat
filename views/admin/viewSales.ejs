@@ -1,0 +1,138 @@
+<%- include('../layouts/adminHeader.ejs')-%>
+<section>
+    <div class="container">
+        <div class="d-flex justify-content-between">
+            <div>
+                <h4 style="color: #0e382e;"><b>Sales details</b></h4>
+            </div>
+            <form action="/admin/viewSales" method="get" onsubmit="return validation()">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" value="<%=dateFilter.startDate%>">
+              
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate" value="<%=dateFilter.endDate%>">
+                <button type="submit" class="btn add-new" style="background-color: #0e382e;color: white;border-radius: 6px;">Search</button>
+              </form>
+              <%if(orderData.length>0){%>
+                <div>
+                    <button type="button" class="btn add-new" style="background-color: #0e382e;color: white;border-radius: 6px;" onclick="return ExportToExcel()"><i class="fa-solid fa-table"></i> Export to Excel</button>
+                    <button type="button" class="btn add-new" style="background-color: #0e382e;color: white;border-radius: 6px;" onclick="return printTable()"><i class="fa-solid fa-file-pdf" ></i> Print</button>
+                  </div>
+              <%}%>              
+        </div>        
+        <table class="table mt-2" id="salesTable">
+            <thead style="border-bottom: solid #0e382e;border-top: solid #0e382e ">
+                <tr style="color: #0e382e;font-weight: bolder;">
+                    <th scope="col">No</th>
+                    <th scope="col">Customer name</th>
+                    <th scope="col">Mobile number</th>
+                    <th scope="col">Order Id</th>
+                    <th scope="col">Order date</th>
+                    <th scope="col">Order quantity</th>                    
+                    <th scope="col">Delivery date</th>
+                    <th scope="col">Order Amount</th>
+                    <th scope="col">Payment method</th>
+                </tr>
+            </thead>
+            <tbody>
+            <% let i=1;
+            let totalAmount = 0;
+            orderData.forEach((order)=>{
+               totalAmount += order.items.price;
+                %>
+                <tr class="text-center">
+                    <td style="color: #0e382e"><%= i++ %></td>
+                    <td style="color: #0e382e"><%= order.userId.name %></td>
+                    <td style="color: #0e382e"><%= order.userId.mobile %></td>
+                    <td style="color: #0e382e"><%= order.orderId %></td>
+                    <td style="color: #0e382e"><%= order.start_date.toLocaleDateString() %></td>
+                    <td style="color: #0e382e">1</td>
+                    <td style="color: #0e382e"><%= order.items.status_date.toLocaleDateString() %></td>
+                    <td style="color: #0e382e">&#8377;<%=order.items.price%></td>
+                    <td style="color: #0e382e"><%= order.paymentType %></td>  
+                </tr>
+            <%})%>
+            <tr style="border-bottom: solid #0e382e;border-top: solid #0e382e "class="text-center">
+                <td style="color: #0e382e;font-weight: bolder;">Total</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="color: #0e382e;font-weight: bolder;"><%= i-1%></td>
+                <td></td>
+                <td style="color: #0e382e;font-weight: bolder;">&#8377;<%= totalAmount %></td>
+                <td></td>
+            </tr> 
+            </tbody>
+        </table>             
+    </div>        
+</section>
+<script>
+    const endDate=document.getElementById('endDate')
+    const startDate=document.getElementById('startDate')
+    function validation(){
+        var valid=true
+        if(endDate.value==""||startDate.value==""){
+            valid=false
+        }else if(new Date(endDate.value)>Date.now()){
+            valid=false
+        }
+        else if(endDate.value<startDate.value){
+            valid=false
+        }
+        return valid
+    }
+    function ExportToExcel(type, fn, dl) {
+        var elt = document.getElementById("salesTable");
+        var ws = XLSX.utils.table_to_sheet(elt);
+        
+        // Set column widths
+        ws["!cols"] = [];
+        var colCount = elt.rows[0].cells.length;
+        for (var i = 0; i < colCount; i++) {
+        ws["!cols"].push({ wpx: 100 });
+        }
+        
+        // Set row heights
+        ws["!rows"] = [];
+        var rowCount = elt.rows.length;
+        for (var i = 0; i < rowCount; i++) {
+        ws["!rows"].push({ hpt: 20 });
+        }
+        
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+        return dl ?
+        XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
+        XLSX.writeFile(wb, fn || ('MySheetName.' + (type || 'xlsx')));
+    }
+
+    function printTable() {
+        var table = document.getElementById("salesTable");
+        var newWin = window.open('', 'Print-Window');
+        newWin.document.open();
+        
+        newWin.document.write('<html><head><title>Print Table</title>');
+        newWin.document.write('<style>table { border-collapse: collapse; } table, th, td { border: 1px solid black; padding: 8px; }</style>');
+        newWin.document.write('</head><body>');
+
+        newWin.document.write('<table>');
+
+        for (var i = 0; i < table.rows.length; i++) {
+        newWin.document.write('<tr>');
+        for (var j = 0; j < table.rows[i].cells.length; j++) {
+            newWin.document.write('<td>' + table.rows[i].cells[j].innerHTML + '</td>');
+        }
+        newWin.document.write('</tr>');
+        }
+        newWin.document.write('</table>');
+        newWin.document.write('</body></html>');
+
+        newWin.document.close();
+        setTimeout(function () { newWin.print(); }, 10);
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+<%- include('../layouts/actionResponse')-%>   
+<%- include('../layouts/adminFooter.ejs')-%> 

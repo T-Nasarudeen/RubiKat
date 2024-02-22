@@ -1,0 +1,211 @@
+<%- include('../layouts/adminHeader.ejs')-%> 
+  <section>
+    <main class="dash-content">
+        <div class="container-fluid">
+            <div class="row dash-row">
+                <div class="col-xl-4">
+                    <div class="stats stats-primary">
+                        <h3 class="stats-title"> Sign ups </h3>
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="stats-data">
+                                <div class="stats-number"><%=totalSignup%></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="stats stats-success ">
+                        <h3 class="stats-title"> Revenue </h3>
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fa-solid fa-building-columns"></i>
+                            </div>
+                            <div class="stats-data">
+                                <%if(orderDetails){%>
+                                    <div class="stats-number">&#8377;<%=orderDetails.total%></div>
+                                <%}else{%>
+                                    <div class="stats-number">&#8377;0</div>
+                                <%}%>                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="stats stats-danger">
+                        <h3 class="stats-title"> Total Orders </h3>
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-cart-arrow-down"></i>
+                            </div>
+                            <div class="stats-data">
+                                <div class="stats-number"><%=orderDetails.count%></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="card easion-card">
+                        <div class="card-header">
+                            <div class="easion-card-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="easion-card-title">Revenue</div>
+                            <div class="easion-card-menu">
+                                <div class="dropdown show">
+                                    <a class="easion-card-menu-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item" href="/admin?revenueFilter=month&orderFilter=<%=orderFilter%>">This Month</a>
+                                        <a class="dropdown-item" href="/admin?revenueFilter=week&orderFilter=<%=orderFilter%>">This week</a>
+                                        <a class="dropdown-item" href="/admin?revenueFilter=year&orderFilter=<%=orderFilter%>">This Year</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body easion-card-body-chart">
+                            <canvas id="easionChartjsLine"></canvas>
+                            <script>
+                                const revenueData=[]
+                                const revenueLabels=[]
+                                const revenueArray ="<%=revenueValues%>".split(",")
+                                const weeks=["Mon", "Tue", "Wed", "Thu", "Fri","Sat","Sun"]
+                                const months=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                                let i=1
+                                revenueArray.forEach((revenue)=>{
+                                    revenueData.push(revenue)
+                                    if("<%=revenueFilter%>"=="week"){
+                                        revenueLabels.push(weeks[i-1])
+                                        i++
+                                    }else if("<%=revenueFilter%>"=="year"){
+                                        revenueLabels.push(months[i-1])
+                                        i++ 
+                                    }
+                                    else{
+                                        revenueLabels.push(i)
+                                        i++
+                                    }                                    
+                                })
+                                var ctx = document.getElementById("easionChartjsLine").getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: revenueLabels,
+                                        datasets: [{
+                                            label: 'OrderTotal',
+                                            data: revenueData,
+                                            backgroundColor: window.chartColors.primary,
+                                            borderColor: window.chartColors.primary,
+                                            fill: false
+                                        }]
+                                    },
+                                    options: {
+                                        legend: {
+                                            display: false
+                                        }
+                                    }
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="card easion-card">
+                        <div class="card-header">
+                            <div class="easion-card-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="easion-card-title">Orders</div>
+                            <div class="easion-card-menu">
+                                <div class="dropdown show">
+                                    <a class="easion-card-menu-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item" href="/admin?orderFilter=month&revenueFilter=<%=revenueFilter%>">This Month</a>
+                                        <a class="dropdown-item" href="/admin?orderFilter=week&revenueFilter=<%=revenueFilter%>">This week</a>
+                                        <a class="dropdown-item" href="/admin?orderFilter=year&revenueFilter=<%=revenueFilter%>">This Year</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body easion-card-body-chart">
+                            <canvas id="easionChartjsTwoBars"></canvas>
+                            <script>
+                                const orderData=[]
+                                const cancelOrders=[]
+                                const returnOrders=[]
+                                const orderLabels=[]
+                                const orderArray ="<%=orderValues%>".split(",")
+                                const cancelOrderArray ="<%=cancelOrders%>".split(",")
+                                const returnOrderArray ="<%=returnOrders%>".split(",")
+                                const orderWeeks=["Mon", "Tue", "Wed", "Thu", "Fri","Sat","Sun"]
+                                const orderMonths=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                                let j=1
+                                orderArray.forEach((order)=>{
+                                    orderData.push(order)
+                                    if("<%=orderFilter%>"=="week"){
+                                        orderLabels.push(weeks[j-1])
+                                        j++
+                                    }else if("<%=orderFilter%>"=="year"){
+                                        orderLabels.push(months[j-1])
+                                        j++ 
+                                    }
+                                    else{
+                                        orderLabels.push(j)
+                                        j++
+                                    }                                    
+                                })
+                                cancelOrderArray.forEach((order)=>{
+                                    cancelOrders.push(order)                                   
+                                })
+                                returnOrderArray.forEach((order)=>{
+                                    returnOrders.push(order)                                   
+                                })
+                                var ctx = document.getElementById("easionChartjsTwoBars").getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: orderLabels,
+                                        datasets: [{
+                                            label: 'Active orders',
+                                            data: orderData,
+                                            backgroundColor: window.chartColors.primary,
+                                            borderColor: 'transparent'
+                                        }, {
+                                            label: 'Cancel orders',
+                                            data: cancelOrders,
+                                            backgroundColor: window.chartColors.danger,
+                                            borderColor: 'transparent'
+                                        }, {
+                                            label: 'Return orders',
+                                            data: returnOrders,
+                                            backgroundColor: window.chartColors.warning,
+                                            borderColor: 'transparent'
+                                        }]
+                                    },
+                                    options: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        scales: {
+                                            yAxes: [{
+                                                ticks: {
+                                                    beginAtZero: true
+                                                }
+                                            }]
+                                        }
+                                    }
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+  </section>                      
+<%- include('../layouts/adminFooter.ejs')-%>             

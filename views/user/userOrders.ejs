@@ -1,0 +1,169 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+<section style="background-color: #eee;">
+  <div class="container py-2">
+    <div class="row">
+      <div class="col">
+        <nav aria-label="breadcrumb" class="bg-light rounded-3 p-1 mb-2">
+          <h2 class="text-center" style="color: #0e382c;font-weight:600 ">My orders</h2>
+        </nav>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card mb-2">
+          <div class="card-body text-center">
+            <img src="/image/userProfilePic.png" alt="avatar"
+              class="rounded-circle img-fluid" style="width: 100px;">
+            <h5 class="my-3" id="profileName"><%=userData.name%></h5>
+            <p class="text-muted mb-1"><i class="fa-solid fa-envelope" style="color: #0e382c;"></i><%=userData.email%></p>
+          </div>
+        </div>
+        <div class="card mb-4 mb-lg-0">
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush rounded-3">
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/profile" style="text-decoration: none;"><p class="mb-0" id="personalDetails">Personal Details</p></a>
+                </li>
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                    <a href="/address" style="text-decoration: none;"><p class="mb-0"id="addressDetails">Manage Addressess</p></a>
+                </li>
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/orders" style="text-decoration: none;"><p class="mb-0" id="orderDetails">My Orders</p></a>
+                </li>
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/wallet" style="text-decoration: none;"><p class="mb-0" id="orderDetails">My Wallet</p></a>
+                </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <%orderData.forEach((order)=>{%>
+            <%order.items.forEach((productData)=>{%>
+                    <a href="/orderDetails?order_id=<%=order._id%>&item_id=<%=productData.product._id%>&unit_id=<%=productData._id%>" style="text-decoration: none;">
+                        <div class="card mb-1">
+                            <div class="card-body">
+                              <div class="row">
+                                <div class="col-sm-5">
+                                  <div class="row">
+                                    <div class="col-sm-4">
+                                        <img src="<%=productData.product.image%>" alt="" style="width: 55px;" > 
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div>
+                                            <span style="font-size: 14px;"><%=productData.product.name%></span>
+                                        </div>
+                                        <span style="font-size: 12px;color: rgb(135, 135, 135);">Author:<span><%=productData.product.author%></span></span> 
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <span style="font-size: 14px;">&#8377; <span><%=productData.price%></span></span>
+                                </div>
+                                <div class="col-sm-5" id="deliverStatus<%=productData._id%>">                                     
+                                </div>                
+                              </div>
+                            </div>
+                        </div>                        
+                    </a>
+                    <script>
+                        var deliverySatus=document.getElementById("deliverStatus<%=productData._id%>")                        
+                        var option={
+                            weekday:"short",
+                            month:"short",
+                            day:"numeric"
+                        }
+                        var deliveryDate=new Date(new Date("<%=order.start_date%>").getTime()+"<%=productData.deliveryTime%>"*24*60*60*1000).toLocaleDateString('en-Us',option)
+                        var statusDate=new Date("<%=productData.status_date%>").toLocaleDateString('en-Us',option)
+                        if("<%=productData.orderStatus%>"=="placed"){
+                          deliverySatus.innerHTML=`<span class="text-success" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-success" >Delivery expected by ${deliveryDate}</span>
+                          <p style="font-size: 12px;">Your order confirmed</p>`
+                        }else if("<%=productData.orderStatus%>"=="shipped"){
+                          deliverySatus.innerHTML=`<span class="text-success" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-success" >Delivery expected by ${deliveryDate}</span>
+                          <p style="font-size: 12px;">Your order has been shipped</p>`
+                        }else if("<%=productData.orderStatus%>"=="delivered"){
+                          deliverySatus.innerHTML=`<span class="text-success" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-success" >Delivered on ${statusDate}</span>
+                          <p style="font-size: 12px;">Your item has been delivered</p>`
+                        }else if("<%=productData.orderStatus%>"=="adminCancelled"){
+                          deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-danger" >Cancelled on ${statusDate}</span>
+                          <p style="font-size: 12px;">Sorry! our team canceled your item</p>`
+                        }else if("<%=productData.orderStatus%>"=="returned"){
+                          deliverySatus.innerHTML=`<span class="text-warning" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-warning" >Returned on ${statusDate}</span>
+                          <p style="font-size: 12px;">You retuned this order</p>`
+                        }else if("<%=productData.orderStatus%>"=="userCancelled"){
+                          deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-danger" >Cancelled on ${statusDate}</span>
+                          <p style="font-size: 12px;">You cancelled the item</p>`
+                        }else if("<%=productData.orderStatus%>"=="cancelRequest"){
+                          deliverySatus.innerHTML=`<span class="text-warning" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-warning" >Cancel requested on ${statusDate}</span>
+                          <p style="font-size: 12px;">You have requested for cancellation</p>`
+                        }else if("<%=productData.orderStatus%>"=="returnRequest"){
+                          deliverySatus.innerHTML=`<span class="text-warning" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-warning" >Return requested on ${statusDate}</span>
+                          <p style="font-size: 12px;">You have requested for return</p>`
+                        }else if("<%=productData.orderStatus%>"=="returnRquestRejected"){
+                          deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-danger" >Return request rejected on ${statusDate}</span>
+                          <p style="font-size: 12px;">You have requested for return</p>`
+                        }else if("<%=productData.orderStatus%>"=="cancelRquestRejected"){
+                          deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+                          <span class="text-danger" >Cancel request rejected on ${statusDate}</span>
+                          <p style="font-size: 12px;">You have requested for cancellation</p>`
+                        }                        
+                                               
+                    </script>
+            <%})%>
+        <%})%>
+      </div>
+      <div class="row justify-content-end">
+        <div class="col-lg-8">
+          <hr>
+      <%if(totalPage>0){%>
+        <div class="d-flex justify-content-between">
+          <div>
+            <p>Page <%=pageNumber%> of <%=totalPage%></p>
+          </div>
+          <div>
+            <nav aria-label="Page navigation example">
+              <ul class="pagination justify-content-center">
+                <li class="page-item">
+                  <%if(pageNumber>1){%>
+                    <a class="page-link" href="/orders?page=<%=pageNumber-1%>"style="color: #0e382e;"  >Previous</a>
+                  <%}%>
+                </li>
+                <%if(pageNumber<5){%>
+                  <% i=1%>
+                <%}else if(pageNumber>5&&(pageNumber+4)>=totalPage){%>
+                  <%i=totalPage-9%>
+                <%}else{%>
+                  <%i=pageNumber-4%>
+                <%}%>
+                <%for(i,j=1;i<=totalPage&&j<=10;i++,j++){%>
+                  <%if(i==pageNumber){%>
+                    <li class="page-item"><a class="page-link" href="/orders?page=<%=i%>" style="color: white;background-color: #0e382e;"><strong><%=i%></strong></a></li>
+                  <%}else{%>
+                    <li class="page-item"><a class="page-link" href="/orders?page=<%=i%>" style="color: #0e382e;" ><%=i%></a></li>
+                  <%}%>                        
+                <%}%>
+                <li class="page-item">
+                  <%if(pageNumber<totalPage){%>
+                    <a class="page-link" href="/orders?page=<%=pageNumber-1%>" style="color: #0e382e;" >Next</a>
+                  <%}%>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      <%}%>
+        </div>
+      </div>      
+    </div>
+  </div>    
+</section>
+<%- include('../layouts/homepageFooter.ejs')-%>

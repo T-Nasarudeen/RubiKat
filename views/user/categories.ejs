@@ -1,0 +1,69 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+
+<div style="background-color: rgb(237, 235, 233);" class="untree_co-section product-section before-footer-section">
+	<div class="container bg-white">               
+		<div class="row">
+        <%categoryData.forEach(data=>{%> 
+            <div class="mb-5 d-flex justify-content-between align-items-center" style="background: linear-gradient(to right, #0e382c,#ffffff);">
+                <h4 style="color:rgb(255, 255, 255);"><strong><%=data.name%></strong></h4>
+                <a href="/products?search=<%=data.name%>" class="btn">Explore more</a>
+            </div>
+		<% data.products.forEach(product=>{%>
+			<%if(product.status==0){%>
+				<div class="col-12 col-md-6 col-lg-3 mb-5 ">
+					<a class="product-item" href="/productDetails/<%=product._id%>">
+                        <div class="product-container">
+                            <div style=" background-image: url('<%=product.image%>');background-size: contain; background-position: center; width: 100%; height: 300px; background-repeat: no-repeat" class="mb-2"></div>
+                            <%if(!userData){%>
+                                <div class="heart-icon-container" onclick="userLogin()">
+                                    <img src="/image/unfilled-like.png" class="heart-icon">
+                                </div>
+                            <%}else{%>
+                                <%if(userData.wishlist.includes(product._id)){%>
+                                    <div class="heart-icon-container" onclick="toggleWishlist(event,this,'<%=product._id%>','remove')">                                   
+                                        <img src="/image/filled-like.png" class="heart-icon">
+                                    </div>
+                                <%}else{%>
+                                    <div class="heart-icon-container" onclick="toggleWishlist(event,this,'<%=product._id%>','add')">                                   
+                                        <img src="/image/unfilled-like.png" class="heart-icon">
+                                    </div>
+                                <%}%>                                
+                            <%}%>                            
+                        </div>
+						<h3 class="product-title"><%=product.name%></h3>
+						<h6 class="product-title">A book of <%=product.author%></h6>
+						<strong class="product-price">&#8377;<%=product.price%></strong>
+					</a>				
+				</div>
+			<%}%>			
+		<%})%>
+        <%})%>			
+		</div>
+	</div>
+</div>
+<script>
+    function userLogin(){
+        event.preventDefault()
+        window.location.href="/userLogin" 
+    }
+   async function toggleWishlist(event,wishlist,productId,status){
+        event.preventDefault()
+        const response=await fetch(`/wishlist?productId=${productId}&status=${status}`)
+        if(response.ok){
+            const result= await response.json()
+            const newStatus = (result.message === "added") ? "remove" : "add";
+            const newOnClick = `toggleWishlist(event, this, '${productId}', '${newStatus}')`;
+            wishlist.setAttribute("onclick", newOnClick);
+            if(result.message=="added"){
+                wishlist.innerHTML=`<img src="/image/filled-like.png" class="heart-icon">`
+            }else if(result.message=="removed"){
+                wishlist.innerHTML=`<img src="/image/unfilled-like.png" class="heart-icon">`
+            }
+        }       
+        
+    }
+</script>
+<%- include('../layouts/homepageFooter.ejs')-%>        
+
+
+		

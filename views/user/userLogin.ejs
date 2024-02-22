@@ -1,0 +1,77 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+<section class="vh-100" style="background-color: #10362e;">
+  <div class="container py-5 h-100" >
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+        <div class="card" style="border-radius: 1rem;">
+          <div class="row g-0">
+            <div class="col-md-6 col-lg-5 d-none d-md-block">
+              <img src="/image/adlogin.avif"
+                alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
+            </div>
+            <div class="col-md-6 col-lg-7 d-flex align-items-center">
+              <div class="card-body p-4 p-lg-5 text-black">
+                <%if(message==="blocked"){%>
+                  <h1>Sorry You are a blocked user! Please write a mail to our team</h1>
+                  <a href="mailto:tnasarudeen@gmail.com">Click here to contact our team</a>
+
+                <%}else{%>  
+                <form  action="/userLogin" method="post" name="userLogin" onsubmit="return loginvalidate()">
+                  <div class="d-flex justify-content-center mb-3 pb-1">
+                    <span class="h2 fw-bold mb-0 font-weight-bold" style="color: black;">RubiKat</span>
+                  </div>
+                  <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
+                  <div class="form-outline mb-1">
+                    <label class="form-label" for="form2Example17">Email address</label>
+                    <input type="email" id="form2Example17" class="form-control form-control-lg" name="email"/>
+                    <span id="emailvalidate" style="color: red;"></span>                    
+                  </div>
+                  <div class="form-outline mb-4">
+                    <label class="form-label" for="form2Example27">Password</label>
+                    <input type="password" id="form2Example27" class="form-control form-control-lg" name="password"/>
+                    <span id="passwordvalidate" style="color: red;"></span>                    
+                  </div>
+                  <%if(message==="not exist"){%>
+                    <span class="text-danger text-center">The Email ID is does not exist</span>
+                    <a href="/userSignup" class="text-primary text-center ">Please click here to signup</a>
+                  <%}else{%>
+                    <h6 class="text-danger text-center"><%= message%></h6>
+                  <%}%>                      
+                  <div class="mb-1 d-flex justify-content-center">
+                    <button type="submit" class="btn btn-dark btn-lg btn-block" >Login</button>
+                  </div>
+                  <div class="d-flex justify-content-center">
+                    <a class="small text-muted" href="/admin/forgetPassword">Forgot password?</a>
+                  </div>                  
+                </form>
+                <%}%>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function loginvalidate(){
+    var email=document.forms['userLogin']['email'].value
+    var password=document.forms['userLogin']['password'].value
+
+    document.getElementById('emailvalidate').innerHTML=''
+    document.getElementById('passwordvalidate').innerHTML=''
+    var valid=true
+    if(email===''){
+      document.getElementById('emailvalidate').innerHTML='Please enter the email ID'
+      
+      valid=false
+    }
+    if(password===''){
+      document.getElementById('passwordvalidate').innerHTML='Please enter the password'
+      
+      valid=false
+    }
+    return valid
+  }
+</script>
+<%- include('../layouts/homepageFooter.ejs')-%> 

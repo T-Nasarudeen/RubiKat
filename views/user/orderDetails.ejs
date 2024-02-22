@@ -1,0 +1,298 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+<style>
+
+#progressbar-1 {
+color: #455A64;
+}
+
+#progressbar-1 li {
+list-style-type: none;
+font-size: 13px;
+width: 33.33%;
+float: left;
+position: relative;
+}
+
+#progressbar-1 #step1:before {
+content: "1";
+color: #fff;
+width: 29px;
+margin-left: 22px;
+padding-left: 11px;
+}
+
+#progressbar-1 #step2:before {
+content: "2";
+color: #fff;
+width: 29px;
+}
+
+#progressbar-1 #step3:before {
+content: "3";
+color: #fff;
+width: 29px;
+margin-right: 22px;
+text-align: center;
+}
+
+#progressbar-1 li:before {
+line-height: 29px;
+display: block;
+font-size: 12px;
+background: #455A64;
+border-radius: 50%;
+margin: auto;
+}
+
+#progressbar-1 li:after {
+content: '';
+width: 121%;
+height: 2px;
+background: #455A64;
+position: absolute;
+left: 0%;
+right: 0%;
+top: 15px;
+}
+
+#progressbar-1 li:nth-child(2):after {
+left: 50%
+}
+
+#progressbar-1 li:nth-child(1):after {
+left: 25%;
+width: 121%
+}
+
+#progressbar-1 li:nth-child(3):after {
+left: 25%;
+width: 50%;
+}
+
+#progressbar-1 li.active:before,
+#progressbar-1 li.active:after {
+background: #1266f1;
+}
+
+
+</style>
+<section style="background-color: #eee;">
+  <div class="container py-2">
+    <div class="row">
+      <div class="col">
+        <nav aria-label="breadcrumb" class="bg-light rounded-3 p-1 mb-2">
+          <h2 class="text-center" style="color: #0e382c;font-weight:600 ">Order Details</h2>
+        </nav>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card mb-2">
+          <div class="card-body text-center">
+            <p class="mb-0" id="personalDetails">Delivery address</p>
+            <address class="text-black border">
+                <pre class="m-0 p-1 h6 font-weight-bold" ><strong><%=orderItem.address[0].name%>  <%=orderItem.address[0].mobile%></strong></pre>
+                <p class="p-1 m-0">
+                <%=orderItem.address[0].house%>,<%=orderItem.address[0].locality%>,
+                <%=orderItem.address[0].city%>,<%=orderItem.address[0].state%>,
+                <%=orderItem.address[0].landmark%>,<%=orderItem.address[0].pin%>
+                </p>                  
+            </address>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="col-md-12 col-lg-12 col-xl-12">
+            <div class="card card-stepper" style="border-radius: 16px;">
+              <div class="card-header p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="text-muted mb-2"> Order ID <span class="fw-bold text-body"><%=orderItem.orderId%></span></p>
+                    <p class="text-muted mb-0"> Place On <span class="fw-bold text-body" id="orderDate">12,March 2019</span> </p>
+                  </div>
+                  <div>
+                    <a href="mailto:tnasarudeen@gmail.com" class="text-decoration-none"><span style="color: rgb(40, 116, 240);">Need help?</span></a>
+                    <%if(orderItem.items[0].orderStatus=="delivered"){%>
+                      <div class="mt-3">
+                        <button type="button" class="btn btn-primary btn-sm"style="padding: 5px 10px;border-radius: 2px;margin: 0 5px 5px 0"><a href="/downloadInvoice?order_id=<%=orderItem._id%>&unit_id=<%=orderItem.items[0]._id%>" class="text-white text-decoration-none">Download Invoice</a></button>
+                      </div>
+                    <%}%>                                        
+                  </div>
+                </div>
+              </div>
+              <div class="card-body p-4">
+                <div class="d-flex flex-row mb-4 pb-2">
+                  <div class="flex-fill">
+                    <h5 class="bold"><%=orderItem.items[0].product.name%></h5>
+                    <p class="text-muted"> Qt: 1 item</p>
+                    <%if(orderItem.paymentType=="COD"){%>
+                      <%var paymentType="COD"%>
+                    <%}else if(orderItem.paymentType=="onlinePayment"){%>
+                      <%var paymentType="Razorpay"%>
+                    <%}else{%>
+                      <%var paymentType="User wallet"%>
+                    <%}%>
+                    <h4 class="mb-3">&#8377; <%=orderItem.items[0].price%><span class="small text-muted"> via(<%=paymentType%>)</span></h4>
+                    <p class="text-muted">Tracking Status on: <span class="text-body" id="currentTime"></span></p>
+                  </div>
+                  <div>
+                    <img class="align-self-center img-fluid"
+                      src="<%=orderItem.items[0].product.image%>" width="150">
+                  </div>
+                </div>
+                <ul id="progressbar-1" class="mx-0 mt-0 mb-5 px-0 pt-0 pb-4">
+                  <li class="step0 active" id="step1"><span
+                      style="margin-left: 22px; margin-top: 12px;">PLACED</span></li>
+                  <li class="step0 active text-center" id="step2"><span>SHIPPED</span></li>
+                  <li class="step0 text-muted text-end" id="step3"><span
+                      style="margin-right: 22px;">DELIVERED</span></li>
+                </ul>
+              </div>
+              <div class="card-footer p-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <%if(orderItem.items[0].orderStatus=="shipped"||orderItem.items[0].orderStatus=="placed"){%>
+                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userAction" style="padding: 5px 10px;border-radius: 2px;margin: 0 5px 5px 0">Cancel order</button>
+                            <div class="modal" id="userAction" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+                                <div class="modal-dialog">
+                                    <div class="modal-content">    
+                                      <form action="/orderStatus?order_id=<%=orderItem._id%>&item_id=<%=orderItem.items[0].product._id%>&unit_id=<%=orderItem.items[0]._id%>" method="post">
+                                        <div class="modal-body">
+                                            <p class="text-danger text-center">Are you sure you want to cancel this order?</p>
+                                            <div class="form-group">
+                                              <label for="cancelReason">Select Cancel Reason:</label>
+                                              <select class="form-control" id="cancelReason" name="reason" required>
+                                                  <option value="Changed Mind">Changed Mind</option>
+                                                  <option value="Found a Cheaper Option">Found a Cheaper Option</option>
+                                                  <option value="Delayed Delivery">Delayed Delivery</option>
+                                                  <option value="Wrong Item Ordered">Wrong Item Ordered</option>
+                                              </select>
+                                          </div>                                    
+                                        </div>
+                                        <div class="modal-footer justify-content-center">
+                                            <input type="hidden" value="cancelRequest" name="action">
+                                            <button type="submit" class="btn-danger" style="color: white;text-decoration: none;">cancel</button>
+                                            <button type="button" class="btn-primary" data-dismiss="modal" >Close</button>
+                                        </div>
+                                      </form>
+                                    </div>
+                                </div>
+                            </div>
+                        <%}else if(orderItem.items[0].orderStatus=="delivered"){%>
+                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userAction" style="padding: 5px 10px;border-radius: 2px;margin: 0 5px 5px 0"id="returnOrderButton">Return order</button>
+                            <div id="returnStatus">
+                            </div>                            
+                            <div class="modal" id="userAction" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <form action="/orderStatus?order_id=<%=orderItem._id%>&item_id=<%=orderItem.items[0].product._id%>&unit_id=<%=orderItem.items[0]._id%>" method="post">
+                                        <div class="modal-body">
+                                            <p class="text-danger text-center">Are you sure you want to return this order?</p>
+                                            <div class="form-group">
+                                              <label for="returnReason">Select Return Reason:</label>
+                                              <select class="form-control" id="returnReason" name="reason" required>
+                                                  <option value="Not Satisfied with Product">Not Satisfied with Product</option>
+                                                  <option value="Defective Product">Defective Product</option>
+                                                  <option value="Received Wrong Item">Received Wrong Item</option>
+                                                  <option value="Item Not as Described">Item Not as Described</option>
+                                              </select>
+                                          </div>                                  
+                                        </div>
+                                        <div class="modal-footer justify-content-center">
+                                            <input type="hidden" value="returnRequest" name="action">
+                                            <button type="submit" class="btn-danger" style="color: white;text-decoration: none;">Return</button>
+                                            <button type="button" class="btn-primary" data-dismiss="modal" >close</button>
+                                            
+                                        </div>
+                                      </form>
+                                    </div>
+                                </div>
+                            </div>
+                        <%}%>                                          
+                    </div>
+                    <div class="" id="deliverStatus">
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+    </div>
+  </div>    
+</section>
+<script>
+    const orderDate=document.getElementById('orderDate')
+    const deliverySatus=document.getElementById("deliverStatus")
+    const returnStatus=document.getElementById("returnStatus")
+    const date=new Date("<%=orderItem.start_date%>")
+    const option={
+        weekday:"short",
+        month:"short",
+        day:"numeric",
+        year:"numeric"
+    }
+    const placedDate=new Date(date).toLocaleDateString('en-us',option)
+    orderDate.innerText=placedDate
+    const currentDate = new Date();
+    let hours = currentDate.getHours();
+    let minutes = currentDate.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    const currentTime = document.getElementById('currentTime');
+    currentTime.textContent = hours + ':' + minutes + ampm+" Today";    
+    const deliveryDate=new Date(date.getTime()+"<%=orderItem.items[0].deliveryTime%>"*24*60*60*1000).toLocaleDateString('en-Us',option)
+    const statusDate=new Date("<%=orderItem.items[0].status_date%>").toLocaleDateString('en-Us',option)
+    if("<%=orderItem.items[0].orderStatus%>"=="placed"){
+        deliverySatus.innerHTML=`<span class="text-success" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-success" >Delivery expected by ${deliveryDate}</span>`
+    }else if("<%=orderItem.items[0].orderStatus%>"=="shipped"){
+        deliverySatus.innerHTML=`<span class="text-success" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-success" >Delivery expected by ${deliveryDate}</span>
+        <p style="font-size: 14px;">Your order has been shipped</p>`
+    }else if("<%=orderItem.items[0].orderStatus%>"=="adminCancelled"){
+        deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-danger" >Cancelled on ${statusDate}</span>
+        <p style="font-size: 14px;">Your order has been cancelled our team</p>`
+    }else if("<%=orderItem.items[0].orderStatus%>"=="delivered"){
+        deliverySatus.innerHTML=`<span class="text-success" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-success" >Delivered on ${statusDate}</span>
+        <p style="font-size: 14px;">Your item has been delivered</p>`
+        const returnDate=new Date(new Date("<%=orderItem.items[0].status_date%>").getTime()+"<%=orderItem.items[0].deliveryTime%>"*24*60*60*1000)
+        if(currentDate<returnDate){
+          returnStatus.innerHTML=`<span class="text-success" >You can return this item before ${returnDate.toLocaleDateString('en-Us',option)}</span>`          
+        }else{
+          document.getElementById('returnOrderButton').style.display = 'none';
+        }        
+    }else if("<%=orderItem.items[0].orderStatus%>"=="userCancelled"){
+        deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-danger" >Cancelled on ${statusDate}</span>
+        <p style="font-size: 14px;">You cancelled the item</p>`
+    }else if("<%=orderItem.items[0].orderStatus%>"=="cancelRequest"){
+        deliverySatus.innerHTML=`<span class="text-warning" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-warning" >Cancel requested on ${statusDate}</span>
+        <p style="font-size: 14px;">You have requested for cancellation</p>`
+    }
+    else if("<%=orderItem.items[0].orderStatus%>"=="returnRequest"){
+        deliverySatus.innerHTML=`<span class="text-warining" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-warning" >Return requested on ${statusDate}</span>
+        <p style="font-size: 14px;">You have requested for return</p>`
+    }else if("<%=orderItem.items[0].orderStatus%>"=="returned"){
+        deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-danger" >Returned on ${statusDate}</span>
+        <p style="font-size: 14px;">You retuened the item</p>`
+    }
+    else if("<%=orderItem.items[0].orderStatus%>"=="returnRquestRejected"){
+        deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-danger" >Return request rejected on ${statusDate}</span>
+        <p style="font-size: 14px;">You have requested for return</p>`
+    }
+    else if("<%=orderItem.items[0].orderStatus%>"=="cancelRquestRejected"){
+        deliverySatus.innerHTML=`<span class="text-danger" style="font-size: 25px;">&#x2022;</span>
+        <span class="text-danger" >Cancel request rejected on ${statusDate}</span>
+        <p style="font-size: 14px;">You have requested for cancellation</p>`
+    }
+  </script>
+<%- include('../layouts/homepageFooter.ejs')-%>

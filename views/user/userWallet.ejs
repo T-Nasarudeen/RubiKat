@@ -1,0 +1,117 @@
+<%- include('../layouts/homepageHeader.ejs')-%>
+  <section style="background-color: #eee;">
+    <div class="container py-2">
+      <div class="row">
+        <div class="col">
+          <nav aria-label="breadcrumb" class="bg-light rounded-3 p-1 mb-2">
+            <h2 class="text-center" style="color: #0e382c;font-weight:600 ">My Wallet</h2>
+          </nav>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-2">
+            <div class="card-body text-center">
+              <img src="/image/userProfilePic.png" alt="avatar" class="rounded-circle img-fluid" style="width: 100px;">
+              <h5 class="my-3" id="profileName">
+                <%=userData.name%>
+              </h5>
+              <p class="text-muted mb-1"><i class="fa-solid fa-envelope" style="color: #0e382c;"></i>
+                <%=userData.email%>
+              </p>
+            </div>
+          </div>
+          <div class="card mb-4 mb-lg-0">
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush rounded-3">
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/profile" style="text-decoration: none;">
+                    <p class="mb-0" id="personalDetails">Personal Details</p>
+                  </a>
+                </li>
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/address" style="text-decoration: none;">
+                    <p class="mb-0" id="addressDetails">Manage Addressess</p>
+                  </a>
+                </li>
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/orders" style="text-decoration: none;">
+                    <p class="mb-0" id="orderDetails">My Orders</p>
+                  </a>
+                </li>
+                <li class="list-group-item d-flex justify-content-center align-items-center p-3">
+                  <a href="/wallet" style="text-decoration: none;">
+                    <p class="mb-0" id="orderDetails">My Wallet</p>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card mb-3">
+            <div class="card-body" id="personalDetailsBody">
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="row" style="color: #0e382c;font-weight: 900;">
+                    <div class="text-center">
+                      <img src="/image/walletimg.png" style="width: 10%;" alt="">
+                    </div>
+                    <div class="text-center mt-1">
+                      <h6>A QUICK AND CONVENIENT WAY TO PAY AND REFUND</h6>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                      <h3>Rs.<%=userData.wallet.total%>
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <%userData.wallet.history.slice().reverse().forEach((history)=>{%>
+            <div class="card">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <div>
+                          <%if(history.transaction=="purchase"){%>
+                            <span class="text-black">Product purchase</span>
+                            <%}else if(history.transaction=="userCancelled" ||history.transaction=="adminCancelled" ){%>
+                              <span class="text-black">Refund for cancellation</span>
+                              <%}else{%>
+                                <span class="text-black">Refund for retuning order</span>
+                                <%}%>
+                        </div>
+                        <span style="font-size: 12px;color: rgb(135, 135, 135);">Order
+                          ID:<span><%=String(history.orderId).slice(-10)%></span></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 d-flex justify-content-end">
+                    <div class="row ">
+                      <div class="col-sm-12">
+                        <div>
+                          <span style="font-size: 14px;"><%=history.date.toLocaleDateString('en-US',{month: 'short' ,
+                              day: 'numeric' , year: 'numeric' })%></span>
+                        </div>
+                        <%if(history.transaction=="purchase"){%>
+                          <span class="text-danger"><strong>-&#8377;<%=history.amount%></strong></span>
+                          <%}else{%>
+                            <span class="text-success"><strong>+&#8377;<%=history.amount%></strong></span>
+                            <%}%>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <%})%>
+        </div>
+      </div>
+    </div>
+  </section>
+  <%- include('../layouts/homepageFooter.ejs')-%>

@@ -1,0 +1,137 @@
+
+<%- include('../layouts/homepageHeader.ejs')-%>
+<!--Main layout-->
+<main>
+    <div class="container mt-2">        
+        <div class="row mb-5">            
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="product-container">
+                    <img src="<%=productData.image%>" style="height: 350px;">
+                    <%if(!userData){%>
+                        <div class="heart-icon-container" onclick="userLogin()">
+                            <img src="/image/unfilled-like.png" class="heart-icon">
+                        </div>
+                    <%}else{%>
+                        <%if(userData.wishlist.includes(productData._id)){%>
+                            <div class="heart-icon-container" onclick="toggleWishlist(event,this,'<%=productData._id%>','remove')">                                   
+                                <img src="/image/filled-like.png" class="heart-icon">
+                            </div>
+                        <%}else{%>
+                            <div class="heart-icon-container" onclick="toggleWishlist(event,this,'<%=productData._id%>','add')">                                   
+                                <img src="/image/unfilled-like.png" class="heart-icon">
+                            </div>
+                        <%}%>                                
+                    <%}%>                            
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h2 style="color: rgb(14, 56, 44);"><%=productData.name%></h2>
+                <h5>Author:<%=productData.author%></h5>
+                <div>
+                    <div class="mb-3">
+                        <a href="">
+                            <span class="badge bg-dark me-1"><%=productData.category%></span>
+                        </a>
+                    </div>
+                    <p class="lead">
+                        <span style="color: rgb(14, 56, 44);">Price: &#8377; <%=productData.price%></span>
+                    </p>
+                    <strong><p style="font-size: 20px;">Description</p></strong>
+                    <p style="color: rgb(14, 56, 44);"><%=productData.description%>.</p>
+                    <%if(productData.quantity<=0){%>
+                        <h4 class="text-danger">Out of stock</h4>
+                    <%}else{%>
+                        <h6 class="text-success" id="deliveryDate"></h6>
+                    <%}%>
+                    <div>
+                        <%if(cartItem){%>
+                            <a href="/cart" class="btn" id="goToCartBtn" style="background-color: #0e382e;color: white;border-radius: 6px;padding: 5px;margin-right: 5px;">Go to Cart<i class="fas fa-shopping-cart ms-1"></i>
+                            </a>
+                         <%}else if(productData.quantity>0){%>
+                            <a  href="/addToCart/<%=productData._id%>" class="btn" id="addToCartBtn" style="background-color: #0e382e;color: white;border-radius: 6px;padding: 5px;" onclick="addToCart(event)" disabled>
+                                Add to cart
+                                <i class="fas fa-shopping-cart ms-1"></i>
+                            </a>
+                            <a href="/cart" class="btn d-none" id="goToCartBtn" style="background-color: #0e382e;color: white;border-radius: 6px;padding: 5px;margin-right: 5px;">Go to Cart<i class="fas fa-shopping-cart ms-1"></i>
+                            </a>
+                         <%}else{%>
+                            <a  href="/" class="btn" id="addToCartBtn" style="background-color: #0e382e;color: white;border-radius: 6px;padding: 5px;">Back to shoping</a>
+                         <%}%>
+                    </div>
+                </div>
+            </div>
+        </div>       
+    </div>
+</main>
+<script>
+function getDeliveryDate(deliveryDays) {
+    const deliveryDate=document.getElementById('deliveryDate')    
+    const date = new Date();
+    const options = {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric'
+        };
+    const deliveryDates = new Date(date.getTime() + deliveryDays * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', options);
+    deliveryDate.innerText="Delivery by "+deliveryDates
+}
+if("<%= productData.quantity %>">0){
+    getDeliveryDate("<%= productData.deliveryTime %>")
+}
+
+async function addToCart(event){
+    const addToCartBtn=document.getElementById('addToCartBtn')
+    goToCartBtn=document.getElementById('goToCartBtn')
+    event.preventDefault();
+    try{
+        const response=await fetch(event.target.href,{
+        method:"POST"
+        })
+        if(response.ok){
+            if(response.redirected){
+                window.location.href = response.url;
+            }else{
+            const result=await response.json()
+            if(result.success){
+                const numberOfItems=document.getElementById('numberOfItems')
+                var cartItems=parseInt(numberOfItems.innerText)
+                if (isNaN(cartItems)) {
+                    cartItems = 0;
+                }
+                numberOfItems.innerHTML=`<strong>${cartItems+1}</strong>`
+                addToCartBtn.classList.add("d-none")
+                goToCartBtn.classList.remove("d-none")
+            } 
+            }
+        }
+    }catch(err){
+        console.log(err.message)
+    }
+    
+}
+function userLogin(){
+        event.preventDefault()
+        window.location.href="/userLogin" 
+    }
+   async function toggleWishlist(event,wishlist,productId,status){
+        event.preventDefault()
+        const response=await fetch(`/wishlist?productId=${productId}&status=${status}`)
+        if(response.ok){
+            const result= await response.json()
+            const newStatus = (result.message === "added") ? "remove" : "add";
+            const newOnClick = `toggleWishlist(event, this, '${productId}', '${newStatus}')`;
+            wishlist.setAttribute("onclick", newOnClick);
+            if(result.message=="added"){
+                wishlist.innerHTML=`<img src="/image/filled-like.png" class="heart-icon">`
+            }else if(result.message=="removed"){
+                wishlist.innerHTML=`<img src="/image/unfilled-like.png" class="heart-icon">`
+            }
+        }       
+        
+    }
+</script>
+<!--Main layout-->
+<%- include('../layouts/homepageFooter.ejs')-%>        
+
+
+		

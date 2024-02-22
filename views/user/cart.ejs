@@ -1,0 +1,324 @@
+
+<%- include('../layouts/homepageHeader.ejs')-%>
+<style>
+  /* Styling for modal */
+  .modal1 {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .modal1-content {
+    background-color: #0e382e;
+    width: 300px;
+    margin: 100px auto;
+    padding: 20px;
+    border: 3px solid white;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px 0 white;
+  }
+</style>
+<div class="untree_co-section before-footer-section">
+    <div class="container">
+      <%if(cartData==""){%>
+        <div class="row">
+          <div class="col-md-12 text-center pt-5">
+              <img src="/image/empty-cart.png"
+                  alt="login form" style="width: 10%;" />
+            <h2 class="text-black">Your cart is empty!</h2>
+            <p class="lead mb-1">Explore our wide selection and find something you like.</p>
+            <p><a href="/" class="btn btn-sm btn-outline-black">Back to shoping</a></p>
+          </div>
+        </div>
+      <%}else{%>      
+      <div class="row mb-5">
+          <div class="site-blocks-table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="product-thumbnail">Image</th>
+                  <th class="product-name">Product</th>                  
+                  <th class="product-remove">Delivery</th>
+                  <th class="product-price">Price</th>
+                  <th class="product-quantity">Quantity</th>
+                  <th class="product-total">Total</th>
+                  <th class="product-remove">Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%cartData.forEach((data)=>{%>
+                    <tr>
+                        <td class="product-thumbnail">
+                          <img style="height: 100px;" src="<%=data.itemdetails[0].image%>" alt="Image" class="img-fluid">
+                        </td>
+                        <td class="product-name">
+                          <h2 class="h5 text-black"><%=data.itemdetails[0].name%></h2>
+                        </td>
+                        <td id="availability<%=data.items.product%>"></td>
+                        <input type="hidden" name="availability" id="availabilityStatus<%=data.items.product%>">
+                        <td>&#8377;<span id="productPrice"><%=data.itemdetails[0].price%></span></td>
+                        <td>
+                          <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;margin: 0 auto;">
+                            <div class="input-group-prepend">
+                              <a href="/decreasQuantity/<%=data.items.product%>"  class="btn btn-outline-black" onclick="decreasQuantity(event,'<%=data.items.product%>')">&minus;</a>
+                            </div>
+                            <input type="button" id="quantity<%=data.items.product%>" class="form-control text-center" value="<%=data.items.quantity%>"aria-label="Example text with button addon" aria-describedby="button-addon1">
+                            <div class="input-group-append">
+                              <a href="/incrementQuantity/<%=data.items.product%>" class="btn btn-outline-black" onclick="incrementQuantity(event,'<%=data.items.product%>')" id="icreaseButton<%=data.items.product%>">&plus;</a>
+                            </div>
+                          </div>
+                        </td>
+                        <%const price=data.items.quantity*data.items.price%>
+                        <td >&#8377;<span id="total<%=data.items.product%>"><%=price%></span></td>
+                        <td style="color: #0e382e">
+                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#delete<%=data.items.product%>">
+                            X
+                          </button>
+                        </td>
+                        <div class="modal" id="delete<%=data.items.product%>" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-body">
+                                  <p class="text-danger text-center">Are you sure you want to remove this item?</p>                                   
+                              </div>
+                              <div class="modal-footer justify-content-center">
+                                  <button type="button" class="btn-danger"><a href="/removeItem/<%=data.items.product%>" onclick="removeItem(event)" style="color: white;text-decoration: none;" >Remove</a></button>                                  
+                                <button type="button" class="btn-primary" data-dismiss="modal" >Cancel</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </tr>
+                      <script>                          
+                        var availability=document.getElementById("availability<%=data.items.product%>")
+                        var availabilityStatus=document.getElementById("availabilityStatus<%=data.items.product%>")
+                        var productQuantity = parseInt("<%= data.items.quantity %>");
+                        var totalQuantity = parseInt("<%= data.itemdetails[0].quantity %>");
+                        if("<%= data.itemdetails[0].status %>"==1){
+                          availability.innerHTML=`<h4 class="text-danger" >Out Of Stock</h4>`
+                          availabilityStatus.value=0
+                        }else if(productQuantity<=totalQuantity){   
+                          var date = new Date();
+                          var options = {
+                                  weekday: 'long',
+                                  month: 'short',
+                                  day: 'numeric'
+                              };
+                          var deliveryDates = new Date(date.getTime() + "<%=data.itemdetails[0].deliveryTime%>" * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', options);
+                          availability.innerHTML=`<h6 class="text-success">${deliveryDates}</h6>`
+                          availabilityStatus.value=1
+                        }else{
+                          availability.innerHTML=`<h4 class="text-danger" >Out Of Stock</h4>`
+                          availabilityStatus.value=0
+                        }                          
+                      </script>
+                <%})%>
+              </tbody>              
+            </table>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row mb-5">
+            <div class="col-md-6">
+              <a href="/" class="btn btn-black btn-sm btn-block">Continue Shopping</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 pl-5">
+          <div class="row justify-content-end">
+            <div class="col-md-7">
+              <div class="row">
+                <div class="col-md-12 text-right border-bottom mb-5">
+                  <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <span class="text-black">Subtotal</span>
+                </div>
+                <div class="col-md-6 text-right">
+                  <strong class="text-black" id="subTotal"></strong>
+                </div>
+              </div>
+              <div class="row mb-5">
+                <div class="col-md-6">
+                  <span class="text-black">Delivery charge</span>
+                </div>
+                <div class="col-md-6 text-right">
+                  <strong id="delivery"></strong>
+                </div>
+              </div>
+              <div class="row mb-5">
+                <div class="col-md-6">
+                  <span class="text-black">Total</span>
+                </div>
+                <div class="col-md-6 text-right">
+                  <strong class="text-black" id="cartTotal" ></strong>
+                </div>
+              </div>
+              <div class="row">
+                <form action="/cart" method="post" onsubmit="return checkoutValidation()">
+                  <input type="numer" name="orderQuantity" id="orderQuantity" style="display: none;">
+                  <input type="number" name="orderAmount" id="orderAmout" style="display: none;">
+                  <div class="col-md-12">
+                    <button type="submit" class="btn btn-black btn-lg py-3 btn-block">Proceed To Checkout</button>
+                  </div>
+                </form>                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <%}%>
+    </div>
+  </div>
+  <div class="modal1" id="popupModal">
+    <div class="modal1-content">
+      <h6 id="popupMessage" style="color: white;"></h6>
+      <button style="width: 25%; background-color: rgb(237, 235, 233); color: #0e382e; font-size: large; font-weight: 900; border: 3px solid white; margin: 10%;" onclick="hidePopup()">ok</button>
+    </div>
+  </div>
+  <script>    
+
+function showPopup(message) {
+  var modal = document.getElementById("popupModal");
+  var textArea = document.getElementById("popupMessage");
+  textArea.innerHTML = message;
+  modal.style.display = "block";
+}
+
+function hidePopup() {
+  var modal = document.getElementById("popupModal");
+  modal.style.display = "none";
+}
+
+        
+const subTotal = document.getElementById('subTotal');
+const delivery = document.getElementById('delivery');
+const cartTotal = document.getElementById('cartTotal');
+function cartCalculation(subTotalValue){
+  subTotal.innerHTML='&#8377;'+subTotalValue
+  if(subTotalValue<500){
+  delivery.innerHTML ='&#8377;' + '40';
+  delivery.style.color ='black';
+  cartTotal.innerHTML='&#8377;'+(parseInt(subTotalValue)+40)
+  }else{
+    delivery.textContent ='Free delivery';
+    delivery.style.color ='green';
+    cartTotal.innerHTML='&#8377;'+subTotalValue
+  }
+}
+
+if("<%=cartData%>"!=""){
+  cartCalculation("<%=cartData[0]?.totalPrice%>")
+}
+
+async function removeItem(event){
+  event.preventDefault()
+  try{
+    const response=await fetch(event.target.href,{
+        method:"POST"
+        })
+    if(response.ok){
+      if(response.redirected){
+        window.location.href=response.url
+      }
+    }
+  }catch(err){
+    console.log(err.message)
+  }
+} 
+
+async function incrementQuantity(event,productId){
+  event.preventDefault()
+  const availability=document.getElementById('availability'+productId)
+  var availabilityStatus=document.getElementById("availabilityStatus"+productId).value
+  if(availabilityStatus==0){
+    return false
+  }
+  quantityInput=document.getElementById('quantity'+productId)
+  const productTotal=document.getElementById('total'+productId)
+  const response=await fetch(event.target.href,{
+    method:"POST"
+  })
+  if(response.ok){
+    if(response.redirected){
+      window.location.href=response.url
+    }else{
+      const result=await response.json()
+      if(result.message){
+        quantityInput.value++
+        cartCalculation(result.subTotal)
+        productTotal.innerText=result.productTotal
+      }else{
+        showPopup("Sorry! We don't have any more units for this item.")
+      }
+    }
+  }
+}
+
+async function decreasQuantity(event,productId){
+  event.preventDefault()
+  const availability=document.getElementById('availability'+productId)
+  var availabilityStatus=document.getElementById("availabilityStatus"+productId)
+  const quantityInput=document.getElementById('quantity'+productId)
+  const productTotal=document.getElementById('total'+productId)
+  if(quantityInput.value==1){
+    return
+  }
+  const response=await fetch(event.target.href,{
+    method:"POST"
+  })
+  if(response.ok){
+    if(response.redirected){
+      window.location.href=response.url
+    }else{
+      const result=await response.json()
+      if(result.message){
+        quantityInput.value--
+        cartCalculation(result.subTotal)
+        productTotal.innerText=result.productTotal
+        if(result.quantity<=result.totalStock){   
+          var date = new Date();
+          var options = {
+                  weekday: 'long',
+                  month: 'short',
+                  day: 'numeric'
+              };
+          var deliveryDates = new Date(date.getTime() + result.deliveryTime* 24 * 60 * 60 * 1000).toLocaleDateString('en-US', options);
+          availability.innerHTML=`<h6 class="text-success">${deliveryDates}</h6>`
+          availabilityStatus.value=1
+      }else{
+        availability.innerHTML=`<h4 class="text-danger" >Out Of Stock</h4>`
+        availabilityStatus.value=0
+      }
+      }
+    }
+  }
+
+}
+
+function checkoutValidation(){
+  const availability=document.getElementsByName('availability')
+  var valid=true
+  availability.forEach((data)=>{
+    if(data.value==0){
+      showPopup("Sorry! Some of the items in your cart are currently out of stock or have limited availability. Please review your cart and remove or adjust the quantities accordingly to proceed with your purchase.")
+      valid=false
+    }
+  })
+  return valid
+}
+
+
+</script>
+
+<%- include('../layouts/homepageFooter.ejs')-%>        
+
+
+		
