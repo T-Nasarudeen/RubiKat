@@ -11,6 +11,8 @@ const session = require("express-session");
 const nocache = require("nocache");
 const bodyParser = require("body-parser");
 const app = express();
+console.log("hi",process.env.SECRET_KEY)
+console.log("hello",process.env.MONGOOSE_CONNECTION)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
