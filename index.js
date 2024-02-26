@@ -7,6 +7,7 @@ const errorHandler = require("./middleware/errorHandler");
 const connectDB = require("./config/dbConnection");
 connectDB();
 const session = require("express-session");
+const cookieParser=require('cookie-parser')
 const nocache = require("nocache");
 const app = express();
 console.log("hi")
@@ -14,9 +15,10 @@ console.log(process.env.SECRET_KEY)
 console.log("hello")
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
 app.use(
   session({
-    secret: "secretkey",
+    secret: process.env.SECRET_KEY,
     resave: false,
     saveUninitialized: true,
     cookie: {
