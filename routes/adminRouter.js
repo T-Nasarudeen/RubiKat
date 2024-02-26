@@ -46,8 +46,8 @@ adminRouter.get("/listCategory", auth.isLogin, adminController.listCategory);
 adminRouter.post("/editCategory", auth.isLogin, adminController.editCategory);
 
 ////////////////////////order-management-route/////////////////////
-adminRouter.get("/viewOrders", auth.isLogin, adminController.viewOrders);
-adminRouter.post("/orderStatus", auth.isLogin, adminController.orderStatus);
+adminRouter.get("/viewOrders", adminController.viewOrders);
+adminRouter.post("/orderStatus", adminController.orderStatus);
 
 ////////////////////////coupen-management-route/////////////////////
 adminRouter.get("/viewCoupons", auth.isLogin, adminController.viewCoupons);

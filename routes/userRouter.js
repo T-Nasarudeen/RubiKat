@@ -8,6 +8,7 @@ const orderController = require("../controllers/orderController");
 const auth = require("../middleware/userVerification");
 userRouter.set("views", "./views/user");
 
+
 ////////////////////////user-signup-route/////////////////////
 userRouter.get("/userSignup", userController.userSignup);
 userRouter.post("/userSignup", upload.none(), userController.submitUserSignup);

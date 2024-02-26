@@ -82,12 +82,13 @@
                             <span class="text-black">Product purchase</span>
                             <%}else if(history.transaction=="userCancelled" ||history.transaction=="adminCancelled" ){%>
                               <span class="text-black">Refund for cancellation</span>
-                              <%}else{%>
-                                <span class="text-black">Refund for retuning order</span>
+                              <%}else if(history.transaction=="referral"){%>
+                                <span class="text-black">Referral bonus</span>
+                                <%}else{%>
+                                  <span class="text-black">Refund for retuning order</span>
                                 <%}%>
                         </div>
-                        <span style="font-size: 12px;color: rgb(135, 135, 135);">Order
-                          ID:<span><%=String(history.orderId).slice(-10)%></span></span>
+                        <span style="font-size: 12px;color: rgb(135, 135, 135);"><%=(history.transaction=="referral")?"Referral used email: ":"Order ID: "%><span><%=history.orderId%></span></span>
                       </div>
                     </div>
                   </div>

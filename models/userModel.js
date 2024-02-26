@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  referralCode: {
+    type: String,
+    required: true,
+  },
   is_admin: {
     type: Number,
     default: 0,
@@ -45,8 +49,7 @@ const userSchema = new mongoose.Schema({
           type: String,
         },
         orderId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "order",
+          type: String,
         },
       },
     ],

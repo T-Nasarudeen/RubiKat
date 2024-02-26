@@ -38,13 +38,43 @@ const submitUserSignup = async (req, res, next) => {
   try {
     if (req.body.otp) {
       if (req.body.otp == generatedOTP) {
-        const { name, email, mobile, password } = req.session.tempUser;
+        const { name, email, mobile, password,referral } = req.session.tempUser;
+        let userwallet=0,referralCode,referralExist,referralMail
+        if(referral){
+          const history = {
+            amount: 50,
+            date: Date.now(),
+            transaction: "referral",
+            orderId: email,
+          }
+          referralMail=await user.findOneAndUpdate({ referralCode: referral},{$inc:{"wallet.total":50},$push: { "wallet.history": history }},{ projection: { email: 1 }, returnOriginal: false })
+          userwallet=100         
+        }
+        do{
+          function generateReferralCode(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            return Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+          }          
+          referralCode = generateReferralCode(10);
+          referralExist=await user.findOne({ referralCode: referralCode })
+        }while(referralExist)
+        const history = {
+          amount: 100,
+          date: Date.now(),
+          transaction: "referral",
+          orderId: referralMail.email,
+        }
         const spassword = await securePassword(password);
         const addUser = new user({
           name: name,
           email: email,
           mobile: mobile,
           password: spassword,
+          wallet:{
+            total:userwallet,
+            history:history
+          },
+          referralCode:referralCode
         });
         const userData = await addUser.save();
         req.session.tempUser = "";
@@ -60,37 +90,49 @@ const submitUserSignup = async (req, res, next) => {
         res.json({ message: "Entered otp is incorrect" });
       }
     } else {
-      const [usermail, usermobile] = await Promise.all([
-        user.findOne({ email: req.body.email }),
-        user.findOne({ mobile: req.body.mobile }),
-      ]);
+      const { email, mobile,referral } = req.body;
+      const usermail = await user.findOne({ email: email })
       if (!usermail) {
+        const usermobile=await user.findOne({ mobile: mobile })
         if (!usermobile) {
-          req.session.tempUser = req.body;
-          const transporter = nodemailer.createTransport({
-            service: "Gmail",
-            auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASSWORD,
-            },
-          });
-          const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: req.body.email,
-            subject: "Login OTP",
-            text: `Your OTP for Signup is: ${generatedOTP}`,
-          };
-          transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              console.log(error);
-              res.status(500).send("Failed to send OTP");
-            } else {
-              console.log("Email sent: " + info.response);
-              res.status(200).send("OTP sent successfully");
+          let valid=false
+          if(referral){
+            const referrals=await user.findOne({ referralCode: req.body.referral })
+            if(referrals){
+              valid=true
+            }else{
+              res.json({ message: "Provided referral code does not appear to be valid" });
             }
-          });
-          otpExpireTime = new Date(Date.now() + 0.5 * 60 * 1000);
-          res.json({ message: "Signup success", otpExpireTime });
+          }else{
+            valid=true
+          }
+          if(valid){
+            req.session.tempUser = req.body;
+            const transporter = nodemailer.createTransport({
+              service: "Gmail",
+              auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD,
+              },
+            });
+            const mailOptions = {
+              from: process.env.EMAIL_USER,
+              to: req.body.email,
+              subject: "Login OTP",
+              text: `Your OTP for Signup is: ${generatedOTP}`,
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                console.log(error);
+                res.status(500).send("Failed to send OTP");
+              } else {
+                console.log("Email sent: " + info.response);
+                res.status(200).send("OTP sent successfully");
+              }
+            });
+            otpExpireTime = new Date(Date.now() + 0.5 * 60 * 1000);
+            res.json({ message: "Signup success", otpExpireTime });
+          }          
         } else {
           res.json({ message: "Entered Mobile number already exist" });
         }
@@ -450,7 +492,7 @@ const profile = async (req, res, next) => {
     const { userID, cartCount } = req.session.userDetails;
     const userData = await user.findOne(
       { _id: userID },
-      { name: 1, email: 1, mobile: 1 }
+      { name: 1, email: 1, mobile: 1,referralCode:1 }
     );
     userData.cartCount = cartCount;
     res.render("userProfile", { userData, searchInput: "" });

@@ -985,12 +985,12 @@ const orderStatus = async (req, res, next) => {
       _id: orderId,
       "items._id": unitId,
     };
-    await order.updateOne(filter, {
+    const updatedOrder=await order.findOneAndUpdate(filter, {
       $set: {
         "items.$.orderStatus": req.body.status,
         "items.$.status_date": Date.now(),
       },
-    });
+    },{ projection: { orderId: 1 }, returnOriginal: false });
     if (
       req.body.status == "adminCancelled" ||
       req.body.status == "userCancelled" ||
@@ -998,14 +998,14 @@ const orderStatus = async (req, res, next) => {
     ) {
       if (req.body.reason != "Defective Product") {
         await product.updateOne({ _id: itemId }, { $inc: { quantity: 1 } });
-      }
-      const history = {
-        amount: req.body.price,
-        date: Date.now(),
-        transaction: req.body.status,
-        orderId: orderId,
-      };
+      }      
       if (req.body.payment != "COD" || req.body.status == "returned") {
+        const history = {
+          amount: req.body.price,
+          date: Date.now(),
+          transaction: req.body.status,
+          orderId: updatedOrder.orderId,
+        };
         await user.updateOne(
           { _id: userId },
           {
