@@ -1,4 +1,5 @@
 const errorHandler = (err, req, res, next) => {
+  console.log(err)
   console.error(err.stack);
   if (err.name === "ValidationError") {
     res.status(400).render("404", { err: "400" });
