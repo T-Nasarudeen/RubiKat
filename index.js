@@ -6,14 +6,14 @@ const adminRouter = require("./routes/adminRouter");
 const errorHandler = require("./middleware/errorHandler");
 const connectDB = require("./config/dbConnection");
 connectDB();
-const fileUpload = require("express-fileupload");
 const session = require("express-session");
 const nocache = require("nocache");
-const bodyParser = require("body-parser");
 const app = express();
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+console.log("hi")
+console.log(process.env.SECRET_KEY)
+console.log("hello")
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     secret: process.env.SECRET_KEY,
