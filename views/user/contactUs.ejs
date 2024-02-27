@@ -52,31 +52,31 @@
               </div>
             </div>
 
-            <form>
+            <form action="/contact" method="post" onsubmit="return validation(this)">
               <div class="row">
                 <div class="col-6">
                   <div class="form-group">
                     <label class="text-black" for="fname">Full name</label>
-                    <input type="text" class="form-control" id="fname">
+                    <input type="text" class="form-control" name="name">
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-group">
                     <label class="text-black" for="lname">Mobile number</label>
-                    <input type="text" class="form-control" id="lname">
+                    <input type="addcontactForm" class="form-control" name="mobile">
                   </div>
                 </div>
               </div>
               <div class="form-group">
                 <label class="text-black" for="email">Email address</label>
-                <input type="email" class="form-control" id="email">
+                <input type="email" class="form-control" name="email">
               </div>
 
               <div class="form-group mb-5">
                 <label class="text-black" for="message">Message</label>
-                <textarea name="" class="form-control" id="message" cols="30" rows="5"></textarea>
+                <textarea name="message" class="form-control" cols="30" rows="5"></textarea>
               </div>
-
+              <p class="text-center text-danger" id="contactForm"></p>
               <button type="submit" class="btn btn-primary-hover-outline">Send Message</button>
             </form>
 
@@ -91,10 +91,37 @@
 
   </div>
 </div>
-
 <!-- End Contact Form -->
+<script>
+  function validation(form){
+    var name = form.name.value.trim();
+    var mobile = form.mobile.value.trim();
+    var email = form.email.value.trim();
+    var message = form.message.value.trim();
+    var pTag = document.getElementById('contactForm');
+    if (name === '' || mobile === '' || email === '' || message === '') {
+        pTag.innerText = 'Please fill in all fields.';
+        return false;
+    }
+    if (mobile.length !== 10 || isNaN(mobile)) {
+        pTag.innerText = 'Mobile number must be 10 digits.';
+        return false;
+    }
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        pTag.innerText = 'Please enter a valid email address.';
+        return false;
+    }
+    if (message.length > 250) {
+        pTag.innerText = 'Message must be less than 150 characters.';
+        return false;
+    }
+    pTag.innerText = '';
+    return true;
 
-
+  }
+</script>
+<%- include('../layouts/actionResponse')-%>
 <%- include('../layouts/homepageFooter.ejs')-%>        
 
 

@@ -5,6 +5,7 @@ const cart = require("../models/cartModel");
 const order = require("../models/orderModel");
 const coupon = require("../models/couponModel");
 const banner = require("../models/bannerModel");
+const contactForm=require("../models/contactFormModel")
 const { ObjectId } = require("mongodb");
 const express = require("express");
 const nodemailer = require("nodemailer");
@@ -436,6 +437,69 @@ const home = async (req, res, next) => {
   }
 };
 
+const viewMessages=async (req, res, next) => {
+  try {
+    let message = req.session.message || "";
+    req.session.message = null;
+    const pageSize = 10;
+    let skipValue,
+      limitValue,
+      pageNumber;
+    if (req.query.page) {
+      skipValue = (req.query.page - 1) * 10;
+      limitValue = 10;
+      pageNumber = parseInt(req.query.page);
+    } else {
+      skipValue = 0;
+      limitValue = 10;
+      pageNumber = 1;
+    }
+    const userMessages=await contactForm.find().sort({ _id: -1 }).skip(skipValue).limit(limitValue)
+    if (userMessages.length < 1) {
+      message = "Sorry, no messages found!";
+    }
+    const totalDocuments = await contactForm.countDocuments();
+    const totalPage = Math.ceil(totalDocuments / pageSize);
+    const [totalRequest] = await order.aggregate([
+      {
+        $match: {
+          "items.orderStatus": {
+            $in: ["cancelRequest", "returnRequest"],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    res.render("viewMessages", {
+      userMessages,
+      message,
+      totalPage,
+      pageNumber,
+      totalRequest: totalRequest,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteMessage=async (req, res, next) => {
+  try {
+    const id = req.query.messageId;
+    await contactForm.deleteOne({ _id: id });
+    req.session.message = "User message deleted";
+    res.redirect(
+      `/admin/viewMessages`
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
 const viewSales = async (req, res, next) => {
   try {
     let message = req.session.message || "";
@@ -746,35 +810,6 @@ const blockUser = async (req, res, next) => {
     res.redirect(
       `/admin/viewUser?page=${req.query.page}&query=${req.query.query}`
     );
-  } catch (err) {
-    next(err);
-  }
-};
-
-const addUser = async (req, res, next) => {
-  try {
-    const [usermail, usermobile] = await Promise.all([
-      user.findOne({ email: { $regex: new RegExp(req.body.email, "i") } }),
-      user.findOne({ mobile: req.body.mobile }),
-    ]);
-    if (usermail) {
-      req.session.message = "Mail Id already exist";
-      res.redirect("/admin/viewUser");
-    } else if (usermobile) {
-      req.session.message = "Mobile Number already exist";
-      res.redirect("/admin/viewUser");
-    } else {
-      const spassword = await securePassword(req.body.password);
-      const addUser = new user({
-        name: req.body.name,
-        email: req.body.email,
-        mobile: req.body.mobile,
-        password: spassword,
-      });
-      const userData = await addUser.save();
-      req.session.message = "User Added succesfully";
-      res.redirect("/admin/viewUser");
-    }
   } catch (err) {
     next(err);
   }
@@ -1138,7 +1173,7 @@ const editCoupon = async (req, res, next) => {
       couponData = await coupon.find({
         couponCode: { $regex: new RegExp(req.body.code, "i") },
       });
-      if (couponData) {
+      if (couponData.length>0) {
         update = false;
       }
     }
@@ -1386,6 +1421,8 @@ module.exports = {
   forgetPassword,
   verifyForgetPassword,
   home,
+  viewMessages,
+  deleteMessage,
   viewSales,
   addProduct,
   viewProducts,
@@ -1393,7 +1430,6 @@ module.exports = {
   listProduct,
   blockUser,
   viewUser,
-  addUser,
   viewCategory,
   addCategory,
   listCategory,

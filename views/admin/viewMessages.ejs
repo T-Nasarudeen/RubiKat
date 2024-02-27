@@ -1,0 +1,92 @@
+<%- include('../layouts/adminHeader.ejs')-%>
+<section>
+    <div class="container">
+      <div class="d-flex justify-content-between">
+          <div>
+            <h4 style="color: #0e382e;"><b>User Messages</b></h4>
+          </div>
+      </div>
+        <table class="table mt-2">
+            <thead style="border-bottom: solid #0e382e;border-top: solid #0e382e ">
+              <tr style="color: #0e382e;font-weight: bolder;">
+                <th scope="col">No</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Message</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+                <% let i=1%>
+                <% userMessages.forEach(message=>{%>
+                    
+                    <tr >
+                        <td style="color: #0e382e"><%= i++ %></td>
+                        <td style="color: #0e382e"><%= message.name %></td>
+                        <td style="color: #0e382e"><%= message.email %></td>
+                        <td style="color: #0e382e"><%= message.mobile %></td>
+                        <td style="color: #0e382e"><%= message.message %></td>                           
+                        <td style="color: #0e382e">
+                            <button data-toggle="modal" data-target="#delete<%= message._id %>"><i class="fa-solid fa-trash-can" style="color: hsl(0, 75%, 46%);"></i></button>                          
+                        </td>
+                        <div class="modal" id="delete<%= message._id %>" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-body">
+                                <p class="text-danger text-center">Are sure to delete the user message?.</p>                                   
+                              </div>
+                              <div class="modal-footer justify-content-center">
+                                <a href="/admin/deleteMessage?messageId=<%= message._id %>"><button type="button" class="btn btn-danger">Delete message</button></a>                                                                    
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </tr>
+                <%})%>
+                        
+            </tbody>
+          </table>
+          <hr>
+              <%if(totalPage>0){%>
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p>Page <%=pageNumber%> of <%=totalPage%></p>
+                  </div>
+                  <div>
+                    <nav aria-label="Page navigation example">
+                      <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                          <%if(pageNumber>1){%>
+                            <a class="page-link" href="/admin/viewMessages?page=<%=pageNumber-1%>"style="color: #0e382e;"  >Previous</a>
+                          <%}%>
+                        </li>
+                        <%if(pageNumber<5){%>
+                          <% i=1%>
+                        <%}else if(pageNumber>5&&(pageNumber+4)>=totalPage){%>
+                          <%i=totalPage-9%>
+                        <%}else{%>
+                          <%i=pageNumber-4%>
+                        <%}%>
+                        <%for(i,j=1;i<=totalPage&&j<=10;i++,j++){%>
+                          <%if(i==pageNumber){%>
+                            <li class="page-item"><a class="page-link" href="/admin/viewMessages?page=<%=i%>" style="color: white;background-color: #0e382e;"><strong><%=i%></strong></a></li>
+                          <%}else{%>
+                            <li class="page-item"><a class="page-link" href="/admin/viewMessages?page=<%=i%>" style="color: #0e382e;" ><%=i%></a></li>
+                          <%}%>                        
+                        <%}%>
+                        <li class="page-item">
+                          <%if(pageNumber<totalPage){%>
+                            <a class="page-link" href="/admin/viewMessages?page=<%=pageNumber-1%>" style="color: #0e382e;" >Next</a>
+                          <%}%>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              <%}%>             
+    </div>        
+</section>   
+<%- include('../layouts/actionResponse')-%>     
+<%- include('../layouts/adminFooter.ejs')-%> 

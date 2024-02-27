@@ -89,28 +89,29 @@
                     <div class="row">
                       <div class="col-md-12">
                         <h2 class="text-center">Add new product</h2>
-                        <form action="/admin/editProduct?productId=<%=product._id%>&page=<%=pageNumber%>&query=<%=searchInput%>" method="post" enctype="multipart/form-data">
+                        <form action="/admin/editProduct?productId=<%=product._id%>&page=<%=pageNumber%>&query=<%=searchInput%>" method="post" enctype="multipart/form-data" onsubmit="return validation('<%=product._id%>')">
                           <label for="">Name</label>
-                          <input type="text" name="name" class="form-control" value="<%=product.name%>">
+                          <input type="text" name="name" class="form-control" value="<%=product.name%>" id="name<%=product._id%>">
                           <label for="options">Select an Category:</label>
-                          <select id="options" class="form-control" name="category" value="<%=product.category%>">
+                          <select id="options" class="form-control" name="category" value="<%=product.category%>" id="category<%=product._id%>">
                             <% categories.forEach(category=>{%>  
                             <option ><%=category.name%> </option>
                             <%})%>
-                          </select>
+                          </select>        
                           <label for="">Author</label>
-                          <input type="text" name="author" class="form-control" value="<%=product.author%>">
+                          <input type="text" name="author" class="form-control" value="<%=product.author%>" id="author<%=product._id%>">
                           <label for="">Price</label>
-                          <input type="number" name="price" class="form-control" value="<%=product.price%>">
+                          <input type="number" name="price" class="form-control" value="<%=product.price%>" id="price<%=product._id%>">
                           <label for="">Quantity</label>
-                          <input type="number" name="quantity" class="form-control" value="<%=product.quantity%>">
+                          <input type="number" name="quantity" class="form-control" value="<%=product.quantity%>" id="quantity<%=product._id%>">
                           <label for="">Delivery Time</label>
-                          <input type="number" name="deliveryTime" class="form-control" value="<%=product.deliveryTime%>">
+                          <input type="number" name="deliveryTime" class="form-control" value="<%=product.deliveryTime%>" id="deliveryTime<%=product._id%>">
                           <label for="">Description</label>
-                          <textarea name="description" id="" class="d-block" cols="mr-auto" rows="3" style="display: block;width:100%"><%= product.description %></textarea>
+                          <textarea name="description" class="d-block" cols="mr-auto" rows="3" style="display: block;width:100%" id="description<%=product._id%>"><%= product.description %></textarea>
                           <label for="">Image</label>
                           <img src="<%= product.image %>" alt="" style="height: 50px;" class="d-block">
-                          <input type="file" multiple name="image" class="form-control">
+                          <input type="file" multiple name="image" class="form-control" id="image<%=product._id%>">
+                          <p class="text-center text-danger mt-1" id="pTag<%=product._id%>"></p>
                           <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
                             <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
@@ -175,27 +176,28 @@
                 <div class="row">
                   <div class="col-md-12">
                     <h2 class="text-center">Add new product</h2>
-                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data" onsubmit="return validation('NewProduct')">
                       <label for="">Name</label>
-                      <input type="text" name="name" class="form-control">
+                      <input type="text" name="name" class="form-control" id="nameNewProduct">
                       <label for="options">Select an Category:</label>
-                      <select id="options" class="form-control" name="category">
+                      <select id="options" class="form-control" name="category" id="categoryNewProduct">
                         <% categories.forEach(category=>{%>  
                         <option ><%=category.name%> </option>
                         <%})%>
                       </select>
                       <label for="">Author</label>
-                      <input type="text" name="author" class="form-control">
+                      <input type="text" name="author" class="form-control" id="authorNewProduct">
                       <label for="">Price</label>
-                      <input type="number" name="price" class="form-control">
+                      <input type="number" name="price" class="form-control" id="priceNewProduct">
                       <label for="">Quantity</label>
-                      <input type="number" name="quantity" class="form-control">
+                      <input type="number" name="quantity" class="form-control" id="quantityNewProduct">
                       <label for="">Delivery Time</label>
-                      <input type="number" name="deliveryTime" class="form-control" placeholder="No of days">
+                      <input type="number" name="deliveryTime" class="form-control" placeholder="No of days" id="deliveryTimeNewProduct">
                       <label for="">Description</label>
-                      <textarea name="description" cols="mr-auto"style="display: block;width:100%"></textarea>
+                      <textarea name="description" cols="mr-auto"style="display: block;width:100%" id="descriptionNewProduct"></textarea>
                       <label for="">Image</label>
-                      <input type="file" multiple name="image" class="form-control">
+                      <input type="file" multiple name="image" class="form-control" id="imageNewProduct">
+                      <p class="text-center text-danger mt-1" id="pTagNewProduct"></p>
                       <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
                         <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
@@ -212,6 +214,50 @@
   </div>
 </section>
 <script>
+  function validation(id){
+    var name = document.getElementById('name' + id).value.trim();
+    var author = document.getElementById('author' + id).value.trim();
+    var price = parseFloat(document.getElementById('price' + id).value);
+    var quantity = parseInt(document.getElementById('quantity' + id).value);
+    var deliveryTime = parseInt(document.getElementById('deliveryTime' + id).value);
+    var description = document.getElementById('description' + id).value.trim();
+    var image = document.getElementById('image' + id);
+    var pTag = document.getElementById('pTag' + id);
+    if (name === '' || author === '' || isNaN(price) || isNaN(quantity) || isNaN(deliveryTime) || description === '') {
+        pTag.innerText = 'Please fill in all fields and ensure numeric values for price, quantity, and delivery time.';
+        return false;
+    }
+    if (author.length > 15 || name.length > 15) {
+        pTag.innerText = 'Author and name must be less than 15 characters.';
+        return false;
+    }
+    if (description.length > 50) {
+        pTag.innerText = 'Description must be less than 50 characters.';
+        return false;
+    }
+    if(id==="NewProduct"&&!image.files[0]){
+      pTag.innerText="Please upload an image file.";
+      return false
+    }
+    if (image.files.length > 1) {
+        pTag.innerText = 'Please upload a single image file.';
+        return false;
+    }
+    if(image.files[0]){
+      const validExtensions = ['jpg', 'jpeg', 'png', 'gif','webp'];
+      const fileExtension = image.files[0].name.split('.').pop().toLowerCase(); 
+      if(!validExtensions.includes(fileExtension)){
+        pTag.innerText="Please upload an image file.";
+        return false
+      }
+    }
+    if (price <= 0 || quantity <= 0 || deliveryTime <= 0) {
+        pTag.innerText = 'Price, quantity, and delivery time must be positive numbers.';
+        return false;
+    }
+    pTag.innerText = '';
+    return true;        
+  }
   const searchInput=document.getElementById('searchInput')
   const suggestionContainer=document.getElementById('suggestionContainer')
   searchInput.addEventListener('input',async function(){

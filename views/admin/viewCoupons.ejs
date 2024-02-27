@@ -84,23 +84,24 @@
                                       <div class="row">
                                           <div class="col-md-12">
                                               <h2 class="text-center">Edit Coupon</h2>
-                                              <form action="/admin/editCoupon?page=<%=pageNumber%>&query=<%=searchInput%>" method="post">
+                                              <form action="/admin/editCoupon?page=<%=pageNumber%>&query=<%=searchInput%>" method="post" onsubmit="return validateForm('<%=coupon._id%>')">
                           
-                                                  <label for="">Code</label>
+                                                  <label for="">Code</label>     id="pTagNewCoupon"
                                                   <input type="hidden" name="couponId" value="<%=coupon._id%>">
-                                                  <input type="text" name="code" class="form-control" value="<%=coupon.couponCode%>">
+                                                  <input type="text" name="code" class="form-control" value="<%=coupon.couponCode%>" id="code<%=coupon._id%>">
                           
                                                   <label for="">Percentage</label>
-                                                  <input type="number" name="percentage"class="form-control" value="<%=coupon.percentage%>">
+                                                  <input type="number" name="percentage"class="form-control" value="<%=coupon.percentage%>" id="percentage<%=coupon._id%>">
             
                                                   <label for="">Maximum discount</label>
-                                                  <input type="number" name="maxDiscount" class="form-control" value="<%=coupon.maxDiscount%>">
+                                                  <input type="number" name="maxDiscount" class="form-control" value="<%=coupon.maxDiscount%>" id="maxDiscount<%=coupon._id%>">
             
                                                   <label for="">Minimum amount</label>
-                                                  <input type="number" name="minAmount" class="form-control" value="<%=coupon.minAmount%>">
+                                                  <input type="number" name="minAmount" class="form-control" value="<%=coupon.minAmount%>" id="minAmount<%=coupon._id%>">
             
                                                   <label for="">End date</label>
-                                                  <input type="date" name="edate"class="form-control" value="<%=coupon.endDate.toISOString().split('T')[0]%>">
+                                                  <input type="date" name="edate"class="form-control" value="<%=coupon.endDate.toISOString().split('T')[0]%>" id="edate<%=coupon._id%>">
+                                                  <p class="text-center text-danger mt-1" id="pTag<%=coupon._id%>"></p>
                                                   <div class="text-center">
                                                     <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
                                                     <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
@@ -165,23 +166,23 @@
                           <div class="row">
                               <div class="col-md-12">
                                   <h2 class="text-center">Add Coupon</h2>
-                                  <form action="/admin/addCoupon" method="post" onsubmit="return validateForm(this)">
+                                  <form action="/admin/addCoupon" method="post" onsubmit="return validateForm('NewCoupon')">
               
                                       <label for="">Code</label>
-                                      <input type="text" name="code" class="form-control">
+                                      <input type="text" name="code" class="form-control" id="codeNewCoupon">
               
                                       <label for="">Percentage</label>
-                                      <input type="number" name="percentage"class="form-control">
+                                      <input type="number" name="percentage"class="form-control" id="percentageNewCoupon">
 
                                       <label for="">Maximum discount</label>
-                                      <input type="number" name="maxDiscount" class="form-control">
+                                      <input type="number" name="maxDiscount" class="form-control" id="maxDiscountNewCoupon">
 
                                       <label for="">Minimum amount</label>
-                                      <input type="number" name="minAmount" class="form-control">
+                                      <input type="number" name="minAmount" class="form-control" id="minAmountNewCoupon">
 
                                       <label for="">End date</label>
-                                      <input type="date" name="edate"class="form-control">
-                                      <p class="text-center text-danger mt-1"></p>
+                                      <input type="date" name="edate"class="form-control" id="edateNewCoupon">
+                                      <p class="text-center text-danger mt-1" id="pTagNewCoupon"></p>
                                       <div class="text-center">
                                         <button type="submit" class="btn btn-primary btn-lg mt-1">Submit</button>
                                         <button type="button" class="btn btn-primary btn-lg mt-1" data-dismiss="modal">Close</button> 
@@ -199,13 +200,13 @@
     </section>
     <%- include('../layouts/actionResponse')-%>
     <script>
-      function validateForm(form) {        
-        var code = form.querySelector('[name="code"]').value;
-        var percentage = form.querySelector('[name="percentage"]').value;
-        var maxDiscount = form.querySelector('[name="maxDiscount"]').value;
-        var minAmount = form.querySelector('[name="minAmount"]').value;
-        var edate = form.querySelector('[name="edate"]').value;
-        var pTag = form.querySelector('p');
+      function validateForm(id) {        
+        var code = document.getElementById('code'+id).value;
+        var percentage = document.getElementById('percentage'+id).value;
+        var maxDiscount = document.getElementById('maxDiscount'+id).value;
+        var minAmount = document.getElementById('minAmount'+id).value;
+        var edate = document.getElementById('edate'+id).value;
+        var pTag = document.getElementById('pTag'+id);
         pTag.innerText=""
         if (code === "" || percentage === "" || maxDiscount === "" || minAmount === "" || edate === "") {
           pTag.innerText="Please fill in all fields";

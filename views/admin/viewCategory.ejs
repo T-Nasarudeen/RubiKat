@@ -77,9 +77,10 @@
                                       <div class="row">
                                         <div class="col-md-12">
                                           <h2 class="text-center">Edit Category</h2>
-                                          <form action="/admin/editCategory?categoryId=<%=category._id%>&page=<%=pageNumber%>&query=<%=searchInput%>" method="post">
+                                          <form action="/admin/editCategory?categoryId=<%=category._id%>&page=<%=pageNumber%>&query=<%=searchInput%>" method="post" onsubmit="return validation('<%=category._id%>')">
                                             <label for="">Name</label>
-                                            <input type="text" name="name" class="form-control" value="<%=category.name%>">
+                                            <input type="text" name="name" class="form-control" value="<%=category.name%>" id="input<%=category._id%>">
+                                            <p class="text-center text-danger mt-1" id="pTag<%=category._id%>"></p>
                                             <div class="text-center">
                                               <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
                                               <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
@@ -143,9 +144,10 @@
                           <div class="row">
                             <div class="col-md-12">
                               <h2 class="text-center">Add new category</h2>
-                              <form action="/admin/addCategory" method="post">
+                              <form action="/admin/addCategory" method="post" onsubmit="return validation('NewCategory')">
                                 <label for="">Name</label>
-                                <input type="text" name="name" class="form-control" placeholder="Name of the category">
+                                <input type="text" name="name" class="form-control" placeholder="Name of the category" id="inputNewCategory">
+                                <p class="text-center text-danger mt-1" id="pTagNewCategory"></p>
                                 <div class="text-center">
                                   <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
                                   <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
@@ -158,11 +160,23 @@
                     </div>
                   </div>
                 </div>
-              </div>
-                            
+              </div>                            
         </div>
     </section>
     <script>
+      function validation(id){
+        const category = document.getElementById('input'+id);
+        const pTag = document.getElementById('pTag'+id);
+        pTag.innerText=""
+        if(category.value===""){
+          pTag.innerText="Please fill in all fields";
+          return false
+        }else if(category.value.length>15){
+          pTag.innerText="Category filed length must be less than 15 chareters";
+          return false
+        }
+        return true;        
+      }
       const searchInput=document.getElementById('searchInput')
       const suggestionContainer=document.getElementById('suggestionContainer')
       searchInput.addEventListener('input',async function(){

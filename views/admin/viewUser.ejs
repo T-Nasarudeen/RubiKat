@@ -12,9 +12,6 @@
             </form>
             <div id="suggestionContainer" class="text-center text-black" style="display: none;"></div>
           </div>
-          <div>
-            <button data-toggle="modal" data-target="#newuser" type="button" class="btn add-new" style="background-color: #0e382e;color: white;border-radius: 6px;"><i class="fa fa-plus"></i> Add New user</button>
-          </div>
       </div>
         <table class="table mt-2">
             <thead style="border-bottom: solid #0e382e;border-top: solid #0e382e ">
@@ -113,41 +110,7 @@
                     </nav>
                   </div>
                 </div>
-              <%}%>
-          <div class="modal" id="newuser" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-body">
-                  <div class="container mt-4">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h2 class="text-center">Add User</h2>
-                            <form action="/admin/addUser" method="post">
-                                <label for="">Name</label>
-                                <input type="text" name="name" class="form-control">
-        
-                                <label for="">Email</label>
-                                <input type="text" name="email" class="form-control">
-        
-                                <label for="">Phone</label>
-                                <input type="text" name="mobile"class="form-control">
-        
-                                <label for="">Password</label>
-                                <input type="text" name="password" class="form-control">
-                                <div class="text-center">
-                                  <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button> 
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-              </div>
-              <div class="modal-footer justify-content-center">                           
-                <button type="button" class="btn  rounded-pill btn-danger btn-s" data-dismiss="modal">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>              
+              <%}%>             
     </div>        
 </section>
 <script>

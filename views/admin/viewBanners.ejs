@@ -80,14 +80,15 @@
                       <div class="col-md-12">
                         <h2 class="text-center">Edit Banner</h2>
                         <hr>
-                        <form action="/admin/editBanner?bannerId=<%=banner._id%>&page=<%=pageNumber%>&query=<%=searchInput%>" method="post" enctype="multipart/form-data">                          
+                        <form action="/admin/editBanner?bannerId=<%=banner._id%>&page=<%=pageNumber%>&query=<%=searchInput%>" method="post" enctype="multipart/form-data" onsubmit="return validation('<%= banner._id%>')">                          
                           <label for="">Image</label>
                           <img src="<%= banner.image %>" alt="" style="height: 50px;" class="d-block">
-                          <input type="file" multiple name="image" class="form-control">
+                          <input type="file" multiple name="image" class="form-control" id="image<%= banner._id%>">
                           <label for="">Title</label>
-                          <textarea name="title" id="" class="d-block" cols="mr-auto" rows="3" style="display: block;width:100%"><%= banner.title %></textarea>
+                          <textarea name="title" class="d-block" cols="mr-auto" rows="3" style="display: block;width:100%" id="title<%=banner._id%>"><%= banner.title %></textarea>
                           <label for="">Title color</label>
                           <input type="color" class="form-control form-control-color" id="exampleColorInput" value="<%= banner.titleColor%>" title="Choose your color" name="titleColor">
+                          <p class="text-center text-danger mt-1" id="pTag<%= banner._id%>"></p>
                           <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
                             <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
@@ -153,13 +154,14 @@
                   <div class="col-md-12">
                     <h2 class="text-center">Add new Banner</h2>
                     <hr>
-                    <form action="/admin/addBanner" method="post" enctype="multipart/form-data">
+                    <form action="/admin/addBanner" method="post" enctype="multipart/form-data" onsubmit="return validation('NewBanner')">
                       <label for="">Image</label>
-                      <input type="file" multiple name="image" class="form-control">
+                      <input type="file" multiple name="image" class="form-control" id="imageNewBanner">
                       <label for="">Title</label>
-                      <textarea name="title" cols="mr-auto"style="display: block;width:100%"></textarea>
+                      <textarea name="title" cols="mr-auto"style="display: block;width:100%" id="titleNewBanner"></textarea>
                       <label for="">Title color</label>
                       <input type="color" class="form-control form-control-color" id="exampleColorInput" value="#FFE4C4" title="Choose your color" name="titleColor">
+                      <p class="text-center text-danger mt-1" id="pTagNewBanner"></p>
                       <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
                         <button type="button" class="btn btn-primary btn-lg mt-3" data-dismiss="modal">Close</button> 
@@ -176,6 +178,33 @@
   </div>
 </section>
 <script>
+  function validation(id){
+    const image = document.getElementById('image'+id);
+    const title = document.getElementById('title'+id).value;
+    const pTag = document.getElementById('pTag'+id);
+    pTag.innerText=""
+    if(!title){
+      pTag.innerText="Please fill in all fields";
+      return false
+    }
+    if(id==="NewBanner"&&!image.files[0]){
+      pTag.innerText="Please upload an image file.";
+      return false
+    }
+    if(image.files.length>1){
+      pTag.innerText="Please upload a single image file.";
+      return false
+    }
+    if(image.files[0]){
+      const validExtensions = ['jpg', 'jpeg', 'png', 'gif','webp'];
+      const fileExtension = image.files[0].name.split('.').pop().toLowerCase(); 
+      if(!validExtensions.includes(fileExtension)){
+        pTag.innerText="Please upload an image file.";
+        return false
+      }
+    }    
+    return true;        
+  }
   const searchInput=document.getElementById('searchInput')
   const suggestionContainer=document.getElementById('suggestionContainer')
   searchInput.addEventListener('input',async function(){

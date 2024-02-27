@@ -26,6 +26,7 @@ userRouter.get("/categories", userController.categories);
 userRouter.get("/productDetails/:id", userController.productDetails);
 userRouter.get("/searchSuggestions", userController.searchSuggestions);
 userRouter.get("/contact", userController.contact);
+userRouter.post("/contact", userController.submitContactForm);
 
 ////////////////////////user-profile-route/////////////////////
 userRouter.get("/profile", auth.isLogin, userController.profile);
