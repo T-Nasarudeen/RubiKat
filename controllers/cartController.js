@@ -265,9 +265,20 @@ const placeOrder = async (req, res, next) => {
 async function orderUpdate(orderDetails, userID) {
   const userId = new ObjectId(userID);
   const userData = await user.findOne({ _id: userId });
+  let quantity=0,discount=0,deliveryCharge=0
   const cartData = await cart
     .findOne({ userId: userId })
     .populate("items.product");
+    cartData.items.forEach(data=>{
+      quantity+=data.quantity
+    })
+    const couponSave=parseInt(orderDetails.couponSave)
+    if(couponSave>0){
+      discount=couponSave/quantity
+    }
+    if(cartData.totalPrice<500){
+      deliveryCharge=40/quantity
+    }  
   const orderItems = [];
   for (const data of cartData.items) {
     await product.updateOne(
@@ -277,7 +288,7 @@ async function orderUpdate(orderDetails, userID) {
     for (let i = 0; i < data.quantity; i++) {
       orderItems.push({
         product: data.product._id,
-        price: data.price,
+        price: data.price-discount+deliveryCharge,
         deliveryTime: data.product.deliveryTime,
       });
     }

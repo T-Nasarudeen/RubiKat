@@ -1020,6 +1020,14 @@ const orderStatus = async (req, res, next) => {
       _id: orderId,
       "items._id": unitId,
     };
+    let refund=0
+    if (
+      req.body.status == "adminCancelled" ||
+      req.body.status == "userCancelled" ||
+      req.body.status == "returned"
+    ){
+      refund=-req.body.price
+    }
     const updatedOrder = await order.findOneAndUpdate(
       filter,
       {
@@ -1027,6 +1035,7 @@ const orderStatus = async (req, res, next) => {
           "items.$.orderStatus": req.body.status,
           "items.$.status_date": Date.now(),
         },
+        $inc:{totalAmount:refund}
       },
       { projection: { orderId: 1 }, returnOriginal: false }
     );
