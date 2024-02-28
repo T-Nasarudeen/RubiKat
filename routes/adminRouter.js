@@ -22,7 +22,6 @@ adminRouter.get("/viewSales", auth.isLogin, adminController.viewSales);
 adminRouter.get("/viewMessages", auth.isLogin, adminController.viewMessages);
 adminRouter.get("/deleteMessage", auth.isLogin, adminController.deleteMessage);
 
-
 ////////////////////////product-management-route/////////////////////
 adminRouter.get("/viewProducts", auth.isLogin, adminController.viewProducts);
 adminRouter.post(
@@ -37,7 +36,7 @@ adminRouter.post(
   upload.single("image"),
   adminController.editProduct
 );
-adminRouter.get("/listProduct",auth.isLogin, adminController.listProduct);
+adminRouter.get("/listProduct", auth.isLogin, adminController.listProduct);
 
 ////////////////////////user-management-route/////////////////////
 adminRouter.get("/viewUser", auth.isLogin, adminController.viewUser);
@@ -60,7 +59,7 @@ adminRouter.get("/listCoupon", auth.isLogin, adminController.listCoupon);
 adminRouter.post("/editCoupon", auth.isLogin, adminController.editCoupon);
 
 ////////////////////////banner-management-route/////////////////////
-adminRouter.get("/viewBanners", adminController.viewBanners);
+adminRouter.get("/viewBanners", auth.isLogin, adminController.viewBanners);
 adminRouter.post(
   "/addBanner",
   auth.isLogin,
@@ -77,8 +76,9 @@ adminRouter.post(
 
 adminRouter.get(
   "/searchSuggestions/:field",
+  auth.isLogin,
   adminController.searchSuggestions
 );
-adminRouter.get("/search/:field", adminController.search);
+adminRouter.get("/search/:field", auth.isLogin, adminController.search);
 
 module.exports = adminRouter;

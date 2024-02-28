@@ -58,6 +58,15 @@ const goTocart = async (req, res, next) => {
   try {
     const userData = req.session.userDetails;
     const userID = new ObjectId(userData.userID);
+    const cartItems = await cart.findOne({ userId: userID}).populate('items.product');
+    if(cartItems?.items.length>0){
+      for (let cartItem of cartItems.items) {
+        if(cartItem.price!=cartItem.product.price){
+          const difference=(cartItem.product.price-cartItem.price)*cartItem.quantity
+          await cart.updateOne({userId: userID,'items._id': cartItem._id},{$set: { 'items.$.price': cartItem.product.price },$inc:{totalPrice:difference}})
+        }
+      }
+    }
     const cartData = await cart.aggregate([
       { $match: { userId: userID } },
       { $unwind: "$items" },
@@ -93,13 +102,16 @@ const removeItem = async (req, res, next) => {
       },
     ]);
     const { quantity, price } = removingItem;
-    await cart.updateOne(
+    const cartItems=await cart.findOneAndUpdate(
       { userId: userId },
       {
         $pull: { items: { product: productId } },
         $inc: { totalPrice: -(quantity * price) },
-      }
+      },{new:true}
     );
+    if(cartItems.items.length===0){
+      await cart.deleteOne({ userId: userId })
+    }
     req.session.userDetails.cartCount--;
     res.redirect("/cart");
   } catch (err) {
@@ -201,7 +213,7 @@ const placeOrder = async (req, res, next) => {
       .populate("items.product");
     var Availabilty = true;
     cartData.items.forEach((data) => {
-      if (data.quantity > data.product.quantity) {
+      if (data.quantity > data.product.quantity || data.product.status===1) {
         Availabilty = false;
       }
     });

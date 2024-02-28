@@ -5,7 +5,7 @@ const cart = require("../models/cartModel");
 const order = require("../models/orderModel");
 const coupon = require("../models/couponModel");
 const banner = require("../models/bannerModel");
-const contactForm=require("../models/contactFormModel")
+const contactForm = require("../models/contactFormModel");
 const { ObjectId } = require("mongodb");
 const express = require("express");
 const nodemailer = require("nodemailer");
@@ -437,14 +437,12 @@ const home = async (req, res, next) => {
   }
 };
 
-const viewMessages=async (req, res, next) => {
+const viewMessages = async (req, res, next) => {
   try {
     let message = req.session.message || "";
     req.session.message = null;
     const pageSize = 10;
-    let skipValue,
-      limitValue,
-      pageNumber;
+    let skipValue, limitValue, pageNumber;
     if (req.query.page) {
       skipValue = (req.query.page - 1) * 10;
       limitValue = 10;
@@ -454,7 +452,11 @@ const viewMessages=async (req, res, next) => {
       limitValue = 10;
       pageNumber = 1;
     }
-    const userMessages=await contactForm.find().sort({ _id: -1 }).skip(skipValue).limit(limitValue)
+    const userMessages = await contactForm
+      .find()
+      .sort({ _id: -1 })
+      .skip(skipValue)
+      .limit(limitValue);
     if (userMessages.length < 1) {
       message = "Sorry, no messages found!";
     }
@@ -487,14 +489,12 @@ const viewMessages=async (req, res, next) => {
   }
 };
 
-const deleteMessage=async (req, res, next) => {
+const deleteMessage = async (req, res, next) => {
   try {
     const id = req.query.messageId;
     await contactForm.deleteOne({ _id: id });
     req.session.message = "User message deleted";
-    res.redirect(
-      `/admin/viewMessages`
-    );
+    res.redirect(`/admin/viewMessages`);
   } catch (err) {
     next(err);
   }
@@ -596,7 +596,7 @@ const viewProducts = async (req, res, next) => {
       searchFilter = {},
       searchInput = "";
     if (req.query.query) {
-      searchFilter = { name: { $regex: req.query.query, $options: "gi" } };
+      searchFilter = { name: { $regex: req.query.query, $options: "i" } };
       searchInput = req.query.query;
     }
     if (req.query.page) {
@@ -746,7 +746,7 @@ const viewUser = async (req, res, next) => {
       searchFilter = {},
       searchInput = "";
     if (req.query.query) {
-      searchFilter = { email: { $regex: req.query.query, $options: "gi" } };
+      searchFilter = { email: { $regex: req.query.query, $options: "i" } };
       searchInput = req.query.query;
     }
     if (req.query.page) {
@@ -827,7 +827,7 @@ const viewCategory = async (req, res, next) => {
       searchFilter = {},
       searchInput = "";
     if (req.query.query) {
-      searchFilter = { name: { $regex: req.query.query, $options: "gi" } };
+      searchFilter = { name: { $regex: req.query.query, $options: "i" } };
       searchInput = req.query.query;
     }
     if (req.query.page) {
@@ -958,7 +958,7 @@ const viewOrders = async (req, res, next) => {
       searchFilter = {},
       searchInput = "";
     if (req.query.query) {
-      searchFilter = { orderId: { $regex: req.query.query, $options: "gi" } };
+      searchFilter = { orderId: { $regex: req.query.query, $options: "i" } };
       searchInput = req.query.query;
     }
     if (req.query.page) {
@@ -1020,12 +1020,16 @@ const orderStatus = async (req, res, next) => {
       _id: orderId,
       "items._id": unitId,
     };
-    const updatedOrder=await order.findOneAndUpdate(filter, {
-      $set: {
-        "items.$.orderStatus": req.body.status,
-        "items.$.status_date": Date.now(),
+    const updatedOrder = await order.findOneAndUpdate(
+      filter,
+      {
+        $set: {
+          "items.$.orderStatus": req.body.status,
+          "items.$.status_date": Date.now(),
+        },
       },
-    },{ projection: { orderId: 1 }, returnOriginal: false });
+      { projection: { orderId: 1 }, returnOriginal: false }
+    );
     if (
       req.body.status == "adminCancelled" ||
       req.body.status == "userCancelled" ||
@@ -1033,7 +1037,7 @@ const orderStatus = async (req, res, next) => {
     ) {
       if (req.body.reason != "Defective Product") {
         await product.updateOne({ _id: itemId }, { $inc: { quantity: 1 } });
-      }      
+      }
       if (req.body.payment != "COD" || req.body.status == "returned") {
         const history = {
           amount: req.body.price,
@@ -1071,7 +1075,7 @@ const viewCoupons = async (req, res, next) => {
       searchInput = "";
     if (req.query.query) {
       searchFilter = {
-        couponCode: { $regex: req.query.query, $options: "gi" },
+        couponCode: { $regex: req.query.query, $options: "i" },
       };
       searchInput = req.query.query;
     }
@@ -1173,7 +1177,7 @@ const editCoupon = async (req, res, next) => {
       couponData = await coupon.find({
         couponCode: { $regex: new RegExp(req.body.code, "i") },
       });
-      if (couponData.length>0) {
+      if (couponData.length > 0) {
         update = false;
       }
     }
@@ -1212,7 +1216,7 @@ const viewBanners = async (req, res, next) => {
       searchFilter = {},
       searchInput = "";
     if (req.query.query) {
-      searchFilter = { title: { $regex: req.query.query, $options: "gi" } };
+      searchFilter = { title: { $regex: req.query.query, $options: "i" } };
       searchInput = req.query.query;
     }
     if (req.query.page) {
@@ -1345,42 +1349,39 @@ const searchSuggestions = async (req, res, next) => {
     if (searchFeild == "category") {
       searchData = await category
         .find(
-          { name: { $regex: userInput, $options: "gi" } },
+          { name: { $regex: userInput, $options: "i" } },
           { name: 1, _id: 0 }
         )
         .limit(10);
     } else if (searchFeild == "user") {
       searchData = await user
         .find(
-          { email: { $regex: userInput, $options: "gi" } },
+          { email: { $regex: userInput, $options: "i" } },
           { email: 1, _id: 0 }
         )
         .limit(10);
     } else if (searchFeild == "coupon") {
       searchData = await coupon
         .find(
-          { couponCode: { $regex: userInput, $options: "gi" } },
+          { couponCode: { $regex: userInput, $options: "i" } },
           { couponCode: 1, _id: 0 }
         )
         .limit(10);
     } else if (searchFeild == "order") {
       searchData = await order
-        .find(
-          { orderId: { $regex: userInput, $options: "gi" } },
-          { orderId: 1 }
-        )
+        .find({ orderId: { $regex: userInput, $options: "i" } }, { orderId: 1 })
         .limit(10);
     } else if (searchFeild == "product") {
       searchData = await product
         .find(
-          { name: { $regex: userInput, $options: "gi" } },
+          { name: { $regex: userInput, $options: "i" } },
           { name: 1, _id: 0 }
         )
         .limit(10);
     } else if (searchFeild == "banner") {
       searchData = await banner
         .find(
-          { title: { $regex: userInput, $options: "gi" } },
+          { title: { $regex: userInput, $options: "i" } },
           { title: 1, _id: 0 }
         )
         .limit(10);

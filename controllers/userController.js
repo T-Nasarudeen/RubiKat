@@ -4,7 +4,7 @@ const order = require("../models/orderModel");
 const category = require("../models/categoryModel");
 const cart = require("../models/cartModel");
 const banner = require("../models/bannerModel");
-const contactForm=require("../models/contactFormModel")
+const contactForm = require("../models/contactFormModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const randomstring = require("randomstring");
@@ -39,47 +39,58 @@ const submitUserSignup = async (req, res, next) => {
   try {
     if (req.body.otp) {
       if (req.body.otp == generatedOTP) {
-        const { name, email, mobile, password,referral } = req.session.tempUser;
-        let userwallet,referralCode,referralExist,referralMail
-        if(referral){
+        const { name, email, mobile, password, referral } =
+          req.session.tempUser;
+        let userwallet, referralCode, referralExist, referralMail;
+        if (referral) {
           const history = {
             amount: 50,
             date: Date.now(),
             transaction: "referral",
             orderId: email,
-          }
-          referralMail=await user.findOneAndUpdate({ referralCode: referral},{$inc:{"wallet.total":50},$push: { "wallet.history": history }},{ projection: { email: 1 }, returnOriginal: false })
+          };
+          referralMail = await user.findOneAndUpdate(
+            { referralCode: referral },
+            {
+              $inc: { "wallet.total": 50 },
+              $push: { "wallet.history": history },
+            },
+            { projection: { email: 1 }, returnOriginal: false }
+          );
           userwallet = {
-            total:100,
-            history:{
+            total: 100,
+            history: {
               amount: 100,
               date: Date.now(),
               transaction: "referral",
               orderId: referralMail.email,
-            }            
-          }        
-        }else{
-          userwallet={
-            total:0
-          }
+            },
+          };
+        } else {
+          userwallet = {
+            total: 0,
+          };
         }
-        do{
+        do {
           function generateReferralCode(length) {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            return Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
-          }          
+            const characters =
+              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            return Array.from({ length }, () =>
+              characters.charAt(Math.floor(Math.random() * characters.length))
+            ).join("");
+          }
           referralCode = generateReferralCode(10);
-          referralExist=await user.findOne({ referralCode: referralCode })
-        }while(referralExist)
-        
+          referralExist = await user.findOne({ referralCode: referralCode });
+        } while (referralExist);
+
         const spassword = await securePassword(password);
         const addUser = new user({
           name: name,
           email: email,
           mobile: mobile,
           password: spassword,
-          wallet:userwallet,
-          referralCode:referralCode
+          wallet: userwallet,
+          referralCode: referralCode,
         });
         const userData = await addUser.save();
         req.session.tempUser = "";
@@ -95,23 +106,27 @@ const submitUserSignup = async (req, res, next) => {
         res.json({ message: "Entered otp is incorrect" });
       }
     } else {
-      const { email, mobile,referral } = req.body;
-      const usermail = await user.findOne({ email: email })
+      const { email, mobile, referral } = req.body;
+      const usermail = await user.findOne({ email: email });
       if (!usermail) {
-        const usermobile=await user.findOne({ mobile: mobile })
+        const usermobile = await user.findOne({ mobile: mobile });
         if (!usermobile) {
-          let valid=false
-          if(referral){
-            const referrals=await user.findOne({ referralCode: req.body.referral })
-            if(referrals){
-              valid=true
-            }else{
-              res.json({ message: "Provided referral code does not appear to be valid" });
+          let valid = false;
+          if (referral) {
+            const referrals = await user.findOne({
+              referralCode: req.body.referral,
+            });
+            if (referrals) {
+              valid = true;
+            } else {
+              res.json({
+                message: "Provided referral code does not appear to be valid",
+              });
             }
-          }else{
-            valid=true
+          } else {
+            valid = true;
           }
-          if(valid){
+          if (valid) {
             req.session.tempUser = req.body;
             const transporter = nodemailer.createTransport({
               service: "Gmail",
@@ -137,7 +152,7 @@ const submitUserSignup = async (req, res, next) => {
             });
             otpExpireTime = new Date(Date.now() + 0.5 * 60 * 1000);
             res.json({ message: "Signup success", otpExpireTime });
-          }          
+          }
         } else {
           res.json({ message: "Entered Mobile number already exist" });
         }
@@ -227,7 +242,10 @@ const home = async (req, res, next) => {
       "Cache-Control",
       "no-store, no-cache, must-revalidate, private"
     );
-    const productData = await product.find({status:0}).sort({ _id: -1 }).limit(3);
+    const productData = await product
+      .find({ status: 0 })
+      .sort({ _id: -1 })
+      .limit(3);
     const bannerData = await banner.find({ status: 0 }).limit(4);
     res.render("home", { userData, productData, searchInput: "", bannerData });
   } catch (err) {
@@ -289,10 +307,10 @@ const products = async (req, res, next) => {
       searchInput = userInput;
       const seatchFilter = {
         $or: [
-          { name: { $regex: userInput, $options: "gi" } },
-          { category: { $regex: userInput, $options: "gi" } },
-          { author: { $regex: userInput, $options: "gi" } },
-          { description: { $regex: userInput, $options: "gi" } },
+          { name: { $regex: userInput, $options: "i" } },
+          { category: { $regex: userInput, $options: "i" } },
+          { author: { $regex: userInput, $options: "i" } },
+          { description: { $regex: userInput, $options: "i" } },
         ],
       };
       filter.push(seatchFilter);
@@ -467,10 +485,10 @@ const searchSuggestions = async (req, res, next) => {
       .find(
         {
           $or: [
-            { name: { $regex: userInput, $options: "gi" } },
-            { category: { $regex: userInput, $options: "gi" } },
-            { author: { $regex: userInput, $options: "gi" } },
-            { description: { $regex: userInput, $options: "gi" } },
+            { name: { $regex: userInput, $options: "i" } },
+            { category: { $regex: userInput, $options: "i" } },
+            { author: { $regex: userInput, $options: "i" } },
+            { description: { $regex: userInput, $options: "i" } },
           ],
         },
         { name: 1, _id: 0 }
@@ -486,19 +504,19 @@ const contact = async (req, res, next) => {
   try {
     let message = req.session.message || "";
     const userData = req.session.userDetails || null;
-    res.render("contactUs", { userData, searchInput: "",message });
+    res.render("contactUs", { userData, searchInput: "", message });
   } catch (err) {
     next(err);
   }
 };
 
-const submitContactForm=async (req, res, next) => {
+const submitContactForm = async (req, res, next) => {
   try {
-    const {name,mobile,email,message}=req.body
+    const { name, mobile, email, message } = req.body;
     const addcontactForm = new contactForm({
       name: name,
       mobile: mobile,
-      email:email,
+      email: email,
       message: message,
     });
     await addcontactForm.save();
@@ -515,7 +533,7 @@ const profile = async (req, res, next) => {
     const { userID, cartCount } = req.session.userDetails;
     const userData = await user.findOne(
       { _id: userID },
-      { name: 1, email: 1, mobile: 1,referralCode:1 }
+      { name: 1, email: 1, mobile: 1, referralCode: 1 }
     );
     userData.cartCount = cartCount;
     res.render("userProfile", { userData, searchInput: "" });
@@ -680,12 +698,10 @@ const downloadInvoice = async (req, res, next) => {
     doc.lineWidth(1).moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown();
     doc.moveDown();
-    doc
-      .fontSize(12)
-      .text(`${orderItem.items[0].product.name}`, {
-        align: "left",
-        continued: true,
-      });
+    doc.fontSize(12).text(`${orderItem.items[0].product.name}`, {
+      align: "left",
+      continued: true,
+    });
     doc.fontSize(12).text(`1`, { align: "center", continued: true });
     doc.fontSize(12).text(`Rs.${orderItem.items[0].price}`, { align: "right" });
     doc.moveDown();

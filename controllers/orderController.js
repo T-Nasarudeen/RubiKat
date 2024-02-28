@@ -10,8 +10,8 @@ const orders = async (req, res, next) => {
     const { userID, cartCount } = req.session.userDetails;
     const pageSize = 10;
     let skipValue, limitValue, pageNumber;
-    skipValue = (req.query.page - 1) * 10||0;      
-    pageNumber = parseInt(req.query.page)||1;
+    skipValue = (req.query.page - 1) * 10 || 0;
+    pageNumber = parseInt(req.query.page) || 1;
     limitValue = 10;
     const userData = await user.findOne({ _id: userID });
     const orderData = await order
